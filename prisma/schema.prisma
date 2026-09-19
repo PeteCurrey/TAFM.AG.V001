@@ -1,0 +1,687 @@
+// Generator: prisma-client-js
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  BUSINESS
+  SUPPLIER
+  LENDER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum BusinessStructure {
+  SOLE_TRADER
+  PARTNERSHIP
+  LLP
+  LIMITED_COMPANY
+  PLC
+  CIC
+  CHARITY
+  OTHER
+}
+
+enum BusinessStatus {
+  ACTIVE
+  INACTIVE
+  DISSOLVED
+  PENDING_VERIFICATION
+}
+
+enum AssetCondition {
+  NEW
+  USED
+  REFURBISHED
+  FOR_PARTS
+}
+
+enum AssetStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  RESERVED
+  FINANCED
+  INACTIVE
+  SOLD
+  ARCHIVED
+}
+
+enum FinanceStructureType {
+  HIRE_PURCHASE
+  FINANCE_LEASE
+  OPERATING_LEASE
+  ASSET_REFINANCE
+  COMMERCIAL_LOAN
+  SPECIALIST
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  INFORMATION_REQUESTED
+  DECISION_PENDING
+  CONDITIONALLY_APPROVED
+  APPROVED
+  DECLINED
+  WITHDRAWN
+  EXPIRED
+  COMPLETED
+}
+
+enum OfferDecisionStatus {
+  PENDING
+  INDICATIVE
+  APPROVED
+  DECLINED
+  REFERRED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum DataStatus {
+  VERIFIED
+  PROVISIONAL
+  CALCULATED
+  USER_PROVIDED
+  UNKNOWN
+}
+
+enum DocumentStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum TransactionStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  DEFAULTED
+}
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_ONBOARDING
+  SUSPENDED
+  ARCHIVED
+}
+
+enum LenderStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_ONBOARDING
+  SUSPENDED
+}
+
+enum AIJobType {
+  ASSET_CLASSIFICATION
+  SUPPLIER_QUOTE_EXTRACTION
+  DOCUMENT_EXTRACTION
+  FINANCE_APPLICATION_ASSIST
+  LENDER_MATCHING
+  OFFER_NORMALISATION
+  APPLICATION_COMPLETENESS
+  ASSET_DESCRIPTION_GENERATION
+  SEO_CONTENT_GENERATION
+  INSIGHT_GENERATION
+  CUSTOMER_ASSIST
+  INTERNAL_OPERATIONS
+}
+
+enum AIJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  REVIEW_REQUIRED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  STATUS_CHANGE
+  SUBMIT
+  APPROVE
+  DECLINE
+  WITHDRAW
+  REVIEW
+  EXPORT
+  ACCESS
+}
+
+// ─── Users & Businesses ───────────────────────────────────────────────────────
+
+model User {
+  id                String     @id @default(cuid())
+  email             String     @unique
+  firstName         String
+  lastName          String
+  phone             String?
+  role              UserRole   @default(BUSINESS)
+  status            UserStatus @default(PENDING_VERIFICATION)
+  emailVerifiedAt   DateTime?
+  lastLoginAt       DateTime?
+  passwordHash      String?
+  businessId        String?
+  supplierId        String?
+  lenderId          String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  deletedAt         DateTime?
+
+  business     Business?    @relation(fields: [businessId], references: [id])
+  applications FinanceApplication[]
+  auditLogs    AuditLog[]
+  events       Event[]
+
+  @@index([email])
+  @@index([businessId])
+  @@map("users")
+}
+
+model Business {
+  id           String            @id @default(cuid())
+  name         String
+  tradingName  String?
+  structure    BusinessStructure
+  status       BusinessStatus    @default(PENDING_VERIFICATION)
+  companyNumber String?
+  vatNumber    String?
+  isVatRegistered Boolean       @default(false)
+  industry     String?
+  sicCode      String?
+  address      Json?
+  website      String?
+  contactEmail String?
+  contactPhone String?
+  yearsTrading Int?
+  annualTurnover Decimal?      @db.Decimal(15, 2)
+  currency     String          @default("GBP")
+  ownerId      String
+  verifiedAt   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  deletedAt    DateTime?
+
+  users        User[]
+  applications FinanceApplication[]
+
+  @@index([ownerId])
+  @@map("businesses")
+}
+
+// ─── Asset taxonomy ───────────────────────────────────────────────────────────
+
+model AssetCategory {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  parentId    String?
+  icon        String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  seoTitle    String?
+  seoDescription String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent      AssetCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    AssetCategory[] @relation("CategoryHierarchy")
+  assets      Asset[]
+  assetModels AssetModel[]
+
+  @@map("asset_categories")
+}
+
+model Manufacturer {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String
+  countryOfOrigin String?
+  website         String?
+  logoUrl         String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  assetModels AssetModel[]
+  assets      Asset[]
+
+  @@map("manufacturers")
+}
+
+model AssetModel {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  manufacturerId String
+  categoryId     String
+  description    String?
+  specifications Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  manufacturer Manufacturer  @relation(fields: [manufacturerId], references: [id])
+  category     AssetCategory @relation(fields: [categoryId], references: [id])
+  assets       Asset[]
+
+  @@index([manufacturerId])
+  @@index([categoryId])
+  @@map("asset_models")
+}
+
+model Asset {
+  id                       String        @id @default(cuid())
+  slug                     String?       @unique
+  categoryId               String
+  manufacturerId           String?
+  modelId                  String?
+  supplierId               String?
+  name                     String
+  description              String?
+  serialNumber             String?
+  yearOfManufacture        Int?
+  condition                AssetCondition
+  isNew                    Boolean       @default(false)
+  purchasePrice            Decimal       @db.Decimal(15, 2)
+  currency                 String        @default("GBP")
+  vatApplicable            Boolean       @default(true)
+  vatRate                  Decimal?      @db.Decimal(5, 4)
+  estimatedUsefulLifeYears Int?
+  residualValueEstimate    Decimal?      @db.Decimal(15, 2)
+  location                 Json?
+  locationDescription      String?
+  images                   String[]      @default([])
+  documents                Json?
+  specifications           Json?
+  status                   AssetStatus   @default(DRAFT)
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  deletedAt                DateTime?
+
+  category     AssetCategory  @relation(fields: [categoryId], references: [id])
+  manufacturer Manufacturer?  @relation(fields: [manufacturerId], references: [id])
+  model        AssetModel?    @relation(fields: [modelId], references: [id])
+  supplier     Supplier?      @relation(fields: [supplierId], references: [id])
+  applications FinanceApplication[]
+  valuations   AssetValuation[]
+
+  @@index([categoryId])
+  @@index([supplierId])
+  @@index([status])
+  @@map("assets")
+}
+
+model AssetValuation {
+  id            String   @id @default(cuid())
+  assetId       String
+  valuedAt      DateTime
+  valueAmount   Decimal  @db.Decimal(15, 2)
+  currency      String   @default("GBP")
+  valuationType String
+  valuedById    String?
+  notes         String?
+  source        String
+  createdAt     DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id])
+
+  @@index([assetId])
+  @@map("asset_valuations")
+}
+
+// ─── Suppliers ────────────────────────────────────────────────────────────────
+
+model Supplier {
+  id              String         @id @default(cuid())
+  slug            String         @unique
+  name            String
+  tradingName     String?
+  supplierType    String
+  status          SupplierStatus @default(PENDING_ONBOARDING)
+  address         Json?
+  website         String?
+  contactEmail    String?
+  contactPhone    String?
+  contactName     String?
+  companyNumber   String?
+  vatNumber       String?
+  isVatRegistered Boolean        @default(false)
+  description     String?
+  specialisms     String[]       @default([])
+  assetCategories String[]       @default([])
+  logoUrl         String?
+  coverImageUrl   String?
+  displayPriority Int            @default(0)
+  isVerified      Boolean        @default(false)
+  verifiedAt      DateTime?
+  termsAgreedAt   DateTime?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  assets Asset[]
+
+  @@map("suppliers")
+}
+
+// ─── Lenders ──────────────────────────────────────────────────────────────────
+
+model Lender {
+  id                    String       @id @default(cuid())
+  slug                  String       @unique
+  name                  String
+  tradingName           String?
+  lenderType            String
+  status                LenderStatus @default(PENDING_ONBOARDING)
+  fcaReference          String?
+  isRegulated           Boolean      @default(false)
+  regulatoryBody        String?
+  address               Json?
+  website               String?
+  contactEmail          String?
+  contactPhone          String?
+  description           String?
+  specialisms           String[]     @default([])
+  eligibleAssetCategories String[]   @default([])
+  eligibleStructures    String[]     @default([])
+  minLoanAmount         Decimal      @db.Decimal(15, 2) @default(0)
+  maxLoanAmount         Decimal      @db.Decimal(15, 2) @default(0)
+  currency              String       @default("GBP")
+  minTermMonths         Int          @default(12)
+  maxTermMonths         Int          @default(60)
+  newBusinessAppetite   Boolean      @default(true)
+  startupsConsidered    Boolean      @default(false)
+  adverseCreditConsidered Boolean    @default(false)
+  ukOnly                Boolean      @default(true)
+  apiIntegrationStatus  String       @default("NONE")
+  apiEndpoint           String?
+  logoUrl               String?
+  displayPriority       Int          @default(0)
+  notes                 String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  deletedAt             DateTime?
+
+  financeProducts FinanceProduct[]
+  offers          FinanceOffer[]
+
+  @@map("lenders")
+}
+
+model FinanceProduct {
+  id                       String               @id @default(cuid())
+  lenderId                 String
+  name                     String
+  structureType            FinanceStructureType
+  description              String?
+  eligibleAssetCategories  String[]             @default([])
+  minAmount                Decimal              @db.Decimal(15, 2)
+  maxAmount                Decimal              @db.Decimal(15, 2)
+  currency                 String               @default("GBP")
+  minTermMonths            Int
+  maxTermMonths            Int
+  minDepositPercent        Decimal?             @db.Decimal(5, 4)
+  maxDepositPercent        Decimal?             @db.Decimal(5, 4)
+  requiresPersonalGuarantee Boolean             @default(false)
+  requiresSecurityCharge   Boolean              @default(false)
+  isActive                 Boolean              @default(true)
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+
+  lender Lender         @relation(fields: [lenderId], references: [id])
+  offers FinanceOffer[]
+
+  @@index([lenderId])
+  @@map("finance_products")
+}
+
+// ─── Applications & Offers ────────────────────────────────────────────────────
+
+model FinanceApplication {
+  id                     String            @id @default(cuid())
+  reference              String            @unique @default(cuid())
+  userId                 String
+  businessId             String?
+  assetId                String?
+  assetDescription       String?
+  assetValue             Decimal           @db.Decimal(15, 2)
+  currency               String            @default("GBP")
+  supplierId             String?
+  supplierName           String?
+  supplierQuoteReference String?
+  requestedStructure     FinanceStructureType?
+  requestedAmount        Decimal           @db.Decimal(15, 2)
+  requestedDepositAmount Decimal?          @db.Decimal(15, 2)
+  requestedTermMonths    Int?
+  notes                  String?
+  status                 ApplicationStatus @default(DRAFT)
+  currentStep            String            @default("ASSET")
+  completedSteps         String[]          @default([])
+  internalNotes          String?
+  assignedToId           String?
+  submittedAt            DateTime?
+  decidedAt              DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  deletedAt              DateTime?
+
+  user      User                  @relation(fields: [userId], references: [id])
+  business  Business?             @relation(fields: [businessId], references: [id])
+  asset     Asset?                @relation(fields: [assetId], references: [id])
+  offers    FinanceOffer[]
+  documents ApplicationDocument[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("finance_applications")
+}
+
+model FinanceOffer {
+  id                           String              @id @default(cuid())
+  applicationId                String
+  lenderId                     String
+  financeProductId             String?
+  amount                       Decimal             @db.Decimal(15, 2)
+  deposit                      Decimal             @db.Decimal(15, 2)
+  termMonths                   Int
+  monthlyPayment               Decimal             @db.Decimal(15, 2)
+  balloon                      Decimal?            @db.Decimal(15, 2)
+  interestRate                 Decimal?            @db.Decimal(8, 6)
+  apr                          Decimal?            @db.Decimal(8, 6)
+  totalPayable                 Decimal             @db.Decimal(15, 2)
+  amountStatus                 DataStatus          @default(UNKNOWN)
+  monthlyPaymentStatus         DataStatus          @default(UNKNOWN)
+  interestRateStatus           DataStatus          @default(UNKNOWN)
+  totalPayableStatus           DataStatus          @default(UNKNOWN)
+  arrangementFee               Decimal?            @db.Decimal(15, 2)
+  brokerFee                    Decimal?            @db.Decimal(15, 2)
+  otherFees                    Decimal?            @db.Decimal(15, 2)
+  totalFees                    Decimal             @db.Decimal(15, 2) @default(0)
+  structureType                FinanceStructureType
+  ownershipTransferOnCompletion Boolean            @default(false)
+  vatTreatment                 String?
+  earlySettlementTerms         String?
+  requiresPersonalGuarantee    Boolean             @default(false)
+  requiresSecurityCharge       Boolean             @default(false)
+  securityDetails              String?
+  decisionStatus               OfferDecisionStatus @default(PENDING)
+  decisionReason               String?
+  conditions                   String[]            @default([])
+  validUntil                   DateTime?
+  source                       String
+  externalReference            String?
+  confidence                   Decimal?            @db.Decimal(4, 3)
+  requiresReview               Boolean             @default(true)
+  aiGenerated                  Boolean             @default(false)
+  aiJobId                      String?
+  createdAt                    DateTime            @default(now())
+  updatedAt                    DateTime            @updatedAt
+
+  application    FinanceApplication @relation(fields: [applicationId], references: [id])
+  lender         Lender             @relation(fields: [lenderId], references: [id])
+  financeProduct FinanceProduct?    @relation(fields: [financeProductId], references: [id])
+
+  @@index([applicationId])
+  @@index([lenderId])
+  @@map("finance_offers")
+}
+
+model ApplicationDocument {
+  id            String         @id @default(cuid())
+  applicationId String
+  documentType  String
+  status        DocumentStatus @default(PENDING_UPLOAD)
+  filename      String?
+  mimeType      String?
+  sizeBytes     Int?
+  url           String?
+  uploadedBy    String?
+  reviewedBy    String?
+  reviewNotes   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  application FinanceApplication @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId])
+  @@map("application_documents")
+}
+
+// ─── Transactions ─────────────────────────────────────────────────────────────
+
+model Transaction {
+  id             String            @id @default(cuid())
+  reference      String            @unique @default(cuid())
+  applicationId  String            @unique
+  offerId        String
+  assetId        String
+  lenderId       String
+  businessId     String
+  supplierId     String?
+  status         TransactionStatus @default(PENDING)
+  commencedAt    DateTime?
+  completedAt    DateTime?
+  totalFinanced  Decimal           @db.Decimal(15, 2)
+  currency       String            @default("GBP")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@map("transactions")
+}
+
+// ─── AI ──────────────────────────────────────────────────────────────────────
+
+model AIJob {
+  id                String      @id @default(cuid())
+  type              AIJobType
+  status            AIJobStatus @default(QUEUED)
+  provider          String
+  model             String
+  inputReference    String
+  outputReference   String?
+  error             String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  costEstimateGbp   Decimal?    @db.Decimal(10, 6)
+  promptTokens      Int?
+  completionTokens  Int?
+  totalTokens       Int?
+  initiatedBy       String?
+  entityType        String?
+  entityId          String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@map("ai_jobs")
+}
+
+model AIUsage {
+  id               String   @id @default(cuid())
+  jobId            String?
+  provider         String
+  model            String
+  operation        String
+  promptTokens     Int
+  completionTokens Int
+  totalTokens      Int
+  costEstimateGbp  Decimal  @db.Decimal(10, 6) @default(0)
+  entityType       String?
+  entityId         String?
+  createdAt        DateTime @default(now())
+
+  @@index([provider, model])
+  @@map("ai_usage")
+}
+
+// ─── Events & Audit ──────────────────────────────────────────────────────────
+
+model Event {
+  id         String   @id @default(cuid())
+  name       String
+  properties Json?
+  userId     String?
+  sessionId  String?
+  path       String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([name])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("events")
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  entityType    String
+  entityId      String
+  action        AuditAction
+  actorId       String?
+  actorType     String      @default("USER")
+  previousValue Json?
+  newValue      Json?
+  source        String?
+  reason        String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

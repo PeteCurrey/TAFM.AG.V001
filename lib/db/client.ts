@@ -1,0 +1,60 @@
+import { PrismaClient } from '@prisma/client'
+import { logger } from '@/lib/logging'
+
+// ─── Prisma client singleton ───────────────────────────────────────────────────
+//
+// Prevents multiple Prisma Client instances during hot-reloading in development.
+// See: https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __prisma: PrismaClient | undefined
+}
+
+function createPrismaClient(): PrismaClient {
+  return new PrismaClient({
+    log:
+      process.env.NODE_ENV === 'development'
+        ? [
+            { emit: 'event', level: 'query' },
+            { emit: 'event', level: 'error' },
+            { emit: 'event', level: 'warn' },
+          ]
+        : [{ emit: 'event', level: 'error' }],
+  })
+}
+
+export const prisma = globalThis.__prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.__prisma = prisma
+
+  // Log queries in development (not in production — may contain sensitive data)
+  // @ts-expect-error — Prisma event typing
+  prisma.$on('query', (e: { query: string; duration: number }) => {
+    logger.info('DB Query', { duration: `${e.duration}ms` })
+  })
+}
+
+// ─── Connection health check ───────────────────────────────────────────────────
+
+/**
+ * Check whether the database is reachable.
+ * Used in the health endpoint — does not expose connection details.
+ */
+export async function checkDatabaseHealth(): Promise<{
+  connected: boolean
+  error?: string
+}> {
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    return { connected: true }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown database error'
+    // Log internally but return sanitised status
+    logger.error('Database health check failed', { error: message }, 'db')
+    return { connected: false, error: 'Database unreachable' }
+  }
+}
+
+export default prisma
