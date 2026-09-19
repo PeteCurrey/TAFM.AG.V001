@@ -8,6 +8,8 @@ import { SectionHeading } from '@/components/marketing/SectionHeading'
 import { AnimateOnScroll } from '@/components/motion/AnimateOnScroll'
 import { generateMetadata } from '@/lib/seo/metadata'
 import { HeroVisualClient } from '@/components/3d/HeroVisualClient'
+// Phase 2 components
+import { TransactionFlow } from '@/components/marketing/TransactionFlow'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -296,57 +298,10 @@ export default function HomePage() {
             </SectionHeading>
           </AnimateOnScroll>
 
-          {/* Transaction flow — horizontal on desktop, vertical on mobile */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-0" role="list">
-            {[
-              { label: 'Business', sub: 'Identifies asset requirement' },
-              { label: 'Supplier', sub: 'Provides quote and specification' },
-              { label: 'TAFM', sub: 'Structures and manages the application', isHighlight: true },
-              { label: 'Finance', sub: 'Assessed by the lender network' },
-              { label: 'Transaction', sub: 'Asset acquired' },
-            ].map((step, index, arr) => (
-              <AnimateOnScroll key={step.label} delay={index * 100} className="flex flex-col md:flex-row items-center" role="listitem">
-                {/* Step */}
-                <div className="flex flex-col items-center text-center px-6 py-4">
-                  <div
-                    className={`w-12 h-12 rounded-[var(--radius-sm)] flex items-center justify-center mb-3 ${
-                      step.isHighlight
-                        ? 'bg-orange-500/15 border border-[var(--color-border-orange)]'
-                        : 'bg-white/5 border border-[var(--color-border-dark)]'
-                    }`}
-                    aria-hidden="true"
-                  >
-                    <span className={`text-label ${step.isHighlight ? 'text-orange-400' : 'text-[var(--color-text-on-dark-3)]'}`}>
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
-                  <p
-                    className={`text-body font-light mb-1 ${
-                      step.isHighlight ? 'text-orange-400' : 'text-white'
-                    }`}
-                  >
-                    {step.label}
-                  </p>
-                  <p className="text-caption text-[var(--color-text-on-dark-3)] max-w-[120px] leading-relaxed">
-                    {step.sub}
-                  </p>
-                </div>
-
-                {/* Connector arrow */}
-                {index < arr.length - 1 && (
-                  <div
-                    className="flex-shrink-0 text-orange-500/30 rotate-90 md:rotate-0 my-2 md:my-0"
-                    aria-hidden="true"
-                  >
-                    <svg width="24" height="2" viewBox="0 0 24 2" fill="none">
-                      <line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1" />
-                      <path d="M18 -2L22 1L18 4" stroke="currentColor" strokeWidth="1" fill="none" />
-                    </svg>
-                  </div>
-                )}
-              </AnimateOnScroll>
-            ))}
-          </div>
+          {/* Transaction flow — full 8-node chain */}
+          <AnimateOnScroll>
+            <TransactionFlow className="mt-4" />
+          </AnimateOnScroll>
 
           <AnimateOnScroll className="text-center mt-16">
             <Button as="a" href="/how-it-works" variant="secondary" size="md">
