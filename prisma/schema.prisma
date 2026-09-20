@@ -179,7 +179,9 @@ enum AuditAction {
 enum OpportunityStatus {
   DRAFT
   QUALIFYING
+  AWAITING_INFORMATION
   MATCHED
+  READY_TO_SUBMIT
   SUBMITTED
   UNDER_REVIEW
   OFFERED
@@ -204,6 +206,96 @@ enum MarketObservationSource {
   MANUAL_ENTRY
 }
 
+// CRITICAL: ASKING_PRICE ≠ SALE_PRICE ≠ VALUATION.
+// These must never be conflated in the UI or analytics.
+enum ObservationType {
+  ASKING_PRICE
+  SALE_PRICE
+  AUCTION_RESULT
+  DEALER_PRICE
+  LISTED_PRICE
+  USER_SUPPLIED
+  VALUATION
+  TRADE_PRICE
+}
+
+enum DataSourceType {
+  MANUFACTURER
+  DEALER
+  AUCTION
+  MARKETPLACE
+  FINANCE_PROVIDER
+  PUBLIC_DATA
+  USER_SUBMITTED
+  PARTNER
+  INTERNAL_RESEARCH
+  MANUAL
+}
+
+enum DataSourceStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TESTING
+}
+
+enum ImportJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  CANCELLED
+}
+
+enum ImportFormat {
+  MANUAL
+  CSV
+  JSON
+  API
+  WEBHOOK
+}
+
+enum ProviderApplicationStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  INCOMPLETE
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFYING
+  CONVERTED
+  DISQUALIFIED
+}
+
+enum LeadSource {
+  WEBSITE
+  FOR_LENDERS
+  FOR_SUPPLIERS
+  FOR_PROVIDERS
+  REFERRAL
+  DIRECT
+  OTHER
+}
+
+enum ResourceType {
+  ASSET_GUIDE
+  FINANCE_GUIDE
+  BUYING_GUIDE
+  MARKET_GUIDE
+  PROVIDER_GUIDE
+}
+
+enum ResourceStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
 
 
 // ─── Users & Businesses ───────────────────────────────────────────────────────
@@ -292,19 +384,27 @@ model AssetCategory {
 }
 
 model Manufacturer {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  name            String
-  countryOfOrigin String?
-  website         String?
-  logoUrl         String?
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                 String     @id @default(cuid())
+  slug               String     @unique
+  name               String
+  countryOfOrigin    String?
+  website            String?
+  logoUrl            String?
+  description        String?
+  // Verification: VERIFIED = confirmed by official source, PROVISIONAL = research only, UNKNOWN = unverified
+  verificationStatus DataStatus @default(UNKNOWN)
+  sourceId           String?    // FK to DataSource — where was this record sourced?
+  aliases            String[]   @default([]) // e.g. ["CAT"] for Caterpillar — used in normalisation
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
+  source      DataSource? @relation(fields: [sourceId], references: [id])
   assetModels AssetModel[]
   assets      Asset[]
 
+  @@index([slug])
+  @@index([verificationStatus])
   @@map("manufacturers")
 }
 
@@ -428,44 +528,52 @@ model Supplier {
 // ─── Lenders ──────────────────────────────────────────────────────────────────
 
 model Lender {
-  id                    String       @id @default(cuid())
-  slug                  String       @unique
-  name                  String
-  tradingName           String?
-  lenderType            String
-  status                LenderStatus @default(PENDING_ONBOARDING)
-  fcaReference          String?
-  isRegulated           Boolean      @default(false)
-  regulatoryBody        String?
-  address               Json?
-  website               String?
-  contactEmail          String?
-  contactPhone          String?
-  description           String?
-  specialisms           String[]     @default([])
-  eligibleAssetCategories String[]   @default([])
-  eligibleStructures    String[]     @default([])
-  minLoanAmount         Decimal      @db.Decimal(15, 2) @default(0)
-  maxLoanAmount         Decimal      @db.Decimal(15, 2) @default(0)
-  currency              String       @default("GBP")
-  minTermMonths         Int          @default(12)
-  maxTermMonths         Int          @default(60)
-  newBusinessAppetite   Boolean      @default(true)
-  startupsConsidered    Boolean      @default(false)
-  adverseCreditConsidered Boolean    @default(false)
-  ukOnly                Boolean      @default(true)
-  apiIntegrationStatus  String       @default("NONE")
-  apiEndpoint           String?
-  logoUrl               String?
-  displayPriority       Int          @default(0)
-  notes                 String?
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
-  deletedAt             DateTime?
+  id                      String       @id @default(cuid())
+  slug                    String       @unique
+  name                    String
+  tradingName             String?
+  lenderType              String
+  status                  LenderStatus @default(PENDING_ONBOARDING)
+  fcaReference            String?
+  isRegulated             Boolean      @default(false)
+  regulatoryBody          String?
+  address                 Json?
+  website                 String?
+  contactEmail            String?
+  contactPhone            String?
+  description             String?
+  specialisms             String[]     @default([])
+  eligibleAssetCategories String[]     @default([])
+  eligibleStructures      String[]     @default([])
+  minLoanAmount           Decimal      @db.Decimal(15, 2) @default(0)
+  maxLoanAmount           Decimal      @db.Decimal(15, 2) @default(0)
+  currency                String       @default("GBP")
+  minTermMonths           Int          @default(12)
+  maxTermMonths           Int          @default(60)
+  newBusinessAppetite     Boolean      @default(true)
+  startupsConsidered      Boolean      @default(false)
+  adverseCreditConsidered Boolean      @default(false)
+  ukOnly                  Boolean      @default(true)
+  apiIntegrationStatus    String       @default("NONE")
+  apiEndpoint             String?
+  logoUrl                 String?
+  displayPriority         Int          @default(0)
+  // Phase 4 additions
+  verificationStatus      DataStatus   @default(UNKNOWN)
+  providerApplicationId   String?      // back-ref to the ProviderApplication that created this record
+  isPubliclyListed        Boolean      @default(false) // controlled — not auto-listed
+  notes                   String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  deletedAt               DateTime?
 
-  financeProducts FinanceProduct[]
-  offers          FinanceOffer[]
+  financeProducts     FinanceProduct[]
+  offers              FinanceOffer[]
+  criteria            ProviderCriteria?
+  criteriaVersions    ProviderCriteriaVersion[]
 
+  @@index([status])
+  @@index([verificationStatus])
   @@map("lenders")
 }
 
@@ -766,7 +874,10 @@ model MarketObservation {
   manufacturerId  String?
   modelId         String?
   categoryId      String?
+  // observationType MUST be set — ASKING_PRICE ≠ SALE_PRICE ≠ VALUATION
+  observationType ObservationType         @default(ASKING_PRICE)
   source          MarketObservationSource
+  sourceId        String?                 // FK to DataSource — provenance: "where did this number come from?"
   observedValue   Decimal                 @db.Decimal(15, 2)
   currency        String                  @default("GBP")
   observedAt      DateTime
@@ -782,10 +893,14 @@ model MarketObservation {
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
+  dataSource DataSource? @relation(fields: [sourceId], references: [id])
+
   @@index([assetId])
   @@index([manufacturerId, modelId])
   @@index([categoryId])
   @@index([observedAt])
+  @@index([observationType])
+  @@index([sourceId])
   @@map("market_observations")
 }
 
@@ -819,6 +934,8 @@ model ProviderCriteria {
   createdAt              DateTime   @default(now())
   updatedAt              DateTime   @updatedAt
 
+  lender Lender @relation(fields: [lenderId], references: [id])
+
   @@index([lenderId])
   @@map("provider_criteria")
 }
@@ -851,4 +968,201 @@ model AIIntelligenceResult {
   @@index([dataStatus])
   @@index([requiresReview])
   @@map("ai_intelligence_results")
+}
+
+// ─── Data sources ──────────────────────────────────────────────────────────────
+//
+// Every externally sourced entity or observation must be traceable.
+// "Where did this number come from?" must always have an answer.
+
+model DataSource {
+  id                    String           @id @default(cuid())
+  slug                  String           @unique
+  name                  String
+  sourceType            DataSourceType
+  baseUrl               String?
+  status                DataSourceStatus @default(ACTIVE)
+  // Trust level 1–5: 1 = unverified/experimental, 5 = official/verified primary source
+  trustLevel            Int              @default(1)
+  updateFrequency       String?          // e.g. "DAILY", "WEEKLY", "MANUAL"
+  lastSuccessfulImportAt DateTime?
+  lastAttemptAt         DateTime?
+  notes                 String?
+  isActive              Boolean          @default(true)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  importJobs       ImportJob[]
+  manufacturers    Manufacturer[]
+  marketObservations MarketObservation[]
+
+  @@index([sourceType])
+  @@index([status])
+  @@map("data_sources")
+}
+
+// ─── Import jobs ───────────────────────────────────────────────────────────────
+//
+// Every import must be tracked: started, completed, records seen/created/rejected.
+// No silent imports.
+
+model ImportJob {
+  id                   String          @id @default(cuid())
+  reference            String          @unique @default(cuid())
+  sourceId             String?
+  format               ImportFormat
+  status               ImportJobStatus @default(PENDING)
+  entityType           String          // "manufacturer" | "market_observation" | "lender" | etc.
+  startedAt            DateTime?
+  completedAt          DateTime?
+  recordsSeen          Int             @default(0)
+  recordsCreated       Int             @default(0)
+  recordsUpdated       Int             @default(0)
+  recordsRejected      Int             @default(0)
+  recordsNeedingReview Int             @default(0)
+  errors               Json?
+  notes                String?
+  triggeredBy          String?         // userId or "SYSTEM"
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  source DataSource? @relation(fields: [sourceId], references: [id])
+
+  @@index([sourceId])
+  @@index([status])
+  @@index([entityType])
+  @@map("import_jobs")
+}
+
+// ─── Leads ─────────────────────────────────────────────────────────────────────
+//
+// Initial contact — NOT an opportunity.
+// Leads must be qualified before becoming opportunities.
+// LEAD → QUALIFICATION → OPPORTUNITY
+
+model Lead {
+  id                        String     @id @default(cuid())
+  reference                 String     @unique @default(cuid())
+  companyName               String
+  contactName               String
+  email                     String
+  phone                     String?
+  role                      String?
+  type                      String     // "supplier" | "lender" | "provider" | "business"
+  message                   String?
+  status                    LeadStatus @default(NEW)
+  source                    LeadSource @default(WEBSITE)
+  qualifiedAt               DateTime?
+  convertedToOpportunityId  String?
+  assignedToId              String?
+  internalNotes             String?
+  ipAddress                 String?
+  createdAt                 DateTime   @default(now())
+  updatedAt                 DateTime   @updatedAt
+
+  @@index([status])
+  @@index([source])
+  @@index([email])
+  @@map("leads")
+}
+
+// ─── Provider applications ─────────────────────────────────────────────────────
+//
+// "Become a TAFM Provider" journey.
+// Human review required before converting to a verified Lender record.
+// Never auto-approve.
+
+model ProviderApplication {
+  id                  String                    @id @default(cuid())
+  reference           String                    @unique @default(cuid())
+  companyName         String
+  companyNumber       String?
+  contactName         String
+  contactEmail        String
+  contactPhone        String?
+  website             String?
+  providerType        String
+  description         String?
+  financeProducts     String[]                  @default([])
+  assetSpecialisms    String[]                  @default([])
+  geographyUK         Boolean                   @default(true)
+  geographyNotes      String?
+  typicalDealMin      Decimal?                  @db.Decimal(15, 2)
+  typicalDealMax      Decimal?                  @db.Decimal(15, 2)
+  currency            String                    @default("GBP")
+  supportingDocuments Json?
+  status              ProviderApplicationStatus @default(SUBMITTED)
+  reviewedAt          DateTime?
+  reviewedBy          String?
+  reviewNotes         String?
+  convertedToLenderId String?   // set when VERIFIED and Lender record created
+  submittedAt         DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([status])
+  @@index([contactEmail])
+  @@map("provider_applications")
+}
+
+// ─── Provider criteria versions ────────────────────────────────────────────────
+//
+// Criteria change over time. Old versions must remain auditable.
+// "What criteria were being used when this opportunity was matched?"
+// must always have an answer.
+
+model ProviderCriteriaVersion {
+  id            String    @id @default(cuid())
+  lenderId      String
+  versionNumber Int
+  // Full criteria snapshot stored as JSON — immutable once created
+  criteria      Json
+  effectiveFrom DateTime
+  effectiveTo   DateTime? // null = currently active
+  changedBy     String?
+  reason        String?
+  source        String?   // "ADMIN" | "IMPORT" | "API"
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+
+  lender Lender @relation(fields: [lenderId], references: [id])
+
+  @@index([lenderId])
+  @@index([isActive])
+  @@index([effectiveFrom])
+  @@map("provider_criteria_versions")
+}
+
+// ─── Resources / content ───────────────────────────────────────────────────────
+//
+// Structured content: guides, market reports, buying guides.
+// AI can draft — human must review before PUBLISHED.
+// No bulk-generated thin content.
+
+model Resource {
+  id                    String         @id @default(cuid())
+  slug                  String         @unique
+  title                 String
+  resourceType          ResourceType
+  status                ResourceStatus @default(DRAFT)
+  summary               String?
+  body                  String?
+  authorId              String?
+  publishedAt           DateTime?
+  reviewedAt            DateTime?
+  reviewedBy            String?
+  sources               String[]       @default([])
+  relatedCategoryIds    String[]       @default([])
+  relatedManufacturerIds String[]      @default([])
+  seoTitle              String?
+  seoDescription        String?
+  // noindex if below content threshold — prevents thin page indexing
+  isIndexable           Boolean        @default(false)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([resourceType])
+  @@index([status])
+  @@index([isIndexable])
+  @@map("resources")
 }

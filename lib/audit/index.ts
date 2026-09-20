@@ -28,9 +28,15 @@ export type AuditEntityType =
   | 'Lender'
   | 'Supplier'
   | 'ProviderCriteria'
+  | 'ProviderCriteriaVersion'
+  | 'ProviderApplication'
   | 'MarketObservation'
   | 'AIIntelligenceResult'
   | 'AIJob'
+  | 'Lead'
+  | 'DataSource'
+  | 'ImportJob'
+  | 'Resource'
 
 export type AuditActionType =
   | 'CREATE'

@@ -130,18 +130,34 @@ export async function submitApplication(
           requestedDepositAmount: data.depositAmount ?? null,
           requestedTermMonths:   data.termMonths ?? null,
           notes:                 data.notes ?? null,
-          status:                'DRAFT',
+          status:                'SUBMITTED',
           currentStep:           'REVIEW',
           completedSteps:        ['ASSET', 'BUSINESS', 'FINANCE'],
+        },
+      })
+
+      // Phase 4: create a corresponding Opportunity so the pipeline can begin
+      const opportunity = await db.opportunity.create({
+        data: {
+          businessId:    placeholderUser.id,
+          applicationId: application.id,
+          status:        'QUALIFYING',
+          statusHistory: [{
+            from:      'DRAFT',
+            to:        'QUALIFYING',
+            at:        new Date().toISOString(),
+            actorType: 'SYSTEM',
+            reason:    'Application submitted via web form',
+          }] as any,
         },
       })
 
       await auditService.log({
         entity:    'FinanceApplication',
         entityId:  application.id,
-        action:    'CREATE',
+        action:    'SUBMIT',
         actorType: 'USER',
-        after:     { reference: application.reference, status: 'DRAFT' },
+        after:     { reference: application.reference, status: 'SUBMITTED', opportunityId: opportunity.id },
       })
 
       await emitEvent('APPLICATION_SUBMITTED', {

@@ -61,15 +61,35 @@ export async function submitLead(
     hasMessage: !!message,
   })
 
-  // TODO: Write to leads table when DB is connected.
-  // TODO: Send notification email when RESEND_API_KEY is configured.
+  try {
+    const { db } = await import('@/lib/db/client')
+    const lead = await db.lead.create({
+      data: {
+        companyName,
+        contactName,
+        email,
+        role,
+        type,
+        message,
+        status: 'NEW',
+        source: type === 'supplier' ? 'FOR_SUPPLIERS' : type === 'lender' ? 'FOR_LENDERS' : 'FOR_PROVIDERS',
+        ipAddress: ip,
+      },
+    })
 
-  logger.info('Lead captured', {
-    type,
-    company: companyName,
-    contact: contactName,
-    email,
-  }, 'integration')
+    logger.info('Lead persisted', {
+      leadId:  lead.id,
+      type,
+      company: companyName,
+    }, 'integration')
+  } catch (err) {
+    // Non-fatal — log and continue; lead is still captured in audit log
+    logger.warn('Lead DB write failed', {
+      error: err instanceof Error ? err.message : String(err),
+    }, 'integration')
+  }
+
+  // TODO: Send notification email when RESEND_API_KEY is configured.
 
   return {
     status: 'success',

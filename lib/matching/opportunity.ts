@@ -9,7 +9,9 @@ import { auditService } from '@/lib/audit'
 export type OpportunityStatus =
   | 'DRAFT'
   | 'QUALIFYING'
+  | 'AWAITING_INFORMATION'
   | 'MATCHED'
+  | 'READY_TO_SUBMIT'
   | 'SUBMITTED'
   | 'UNDER_REVIEW'
   | 'OFFERED'
@@ -19,15 +21,17 @@ export type OpportunityStatus =
 
 // Which statuses can each status transition TO
 const VALID_TRANSITIONS: Record<OpportunityStatus, OpportunityStatus[]> = {
-  DRAFT:        ['QUALIFYING', 'WITHDRAWN'],
-  QUALIFYING:   ['MATCHED', 'DRAFT', 'WITHDRAWN'],
-  MATCHED:      ['SUBMITTED', 'QUALIFYING', 'WITHDRAWN'],
-  SUBMITTED:    ['UNDER_REVIEW', 'WITHDRAWN'],
-  UNDER_REVIEW: ['OFFERED', 'DECLINED', 'SUBMITTED'],
-  OFFERED:      ['COMPLETED', 'DECLINED', 'WITHDRAWN'],
-  COMPLETED:    [],
-  DECLINED:     [],
-  WITHDRAWN:    [],
+  DRAFT:                ['QUALIFYING', 'WITHDRAWN'],
+  QUALIFYING:           ['AWAITING_INFORMATION', 'MATCHED', 'DRAFT', 'WITHDRAWN'],
+  AWAITING_INFORMATION: ['QUALIFYING', 'MATCHED', 'WITHDRAWN'],
+  MATCHED:              ['READY_TO_SUBMIT', 'AWAITING_INFORMATION', 'QUALIFYING', 'WITHDRAWN'],
+  READY_TO_SUBMIT:      ['SUBMITTED', 'MATCHED', 'WITHDRAWN'],
+  SUBMITTED:            ['UNDER_REVIEW', 'WITHDRAWN'],
+  UNDER_REVIEW:         ['OFFERED', 'DECLINED', 'SUBMITTED'],
+  OFFERED:              ['COMPLETED', 'DECLINED', 'WITHDRAWN'],
+  COMPLETED:            [],
+  DECLINED:             [],
+  WITHDRAWN:            [],
 }
 
 export interface StatusTransitionResult {

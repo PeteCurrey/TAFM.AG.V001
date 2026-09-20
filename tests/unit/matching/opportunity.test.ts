@@ -9,12 +9,14 @@ import {
 
 describe('validateTransition', () => {
   it('allows valid forward transitions', () => {
-    expect(validateTransition('DRAFT',        'QUALIFYING'  ).success).toBe(true)
-    expect(validateTransition('QUALIFYING',   'MATCHED'     ).success).toBe(true)
-    expect(validateTransition('MATCHED',      'SUBMITTED'   ).success).toBe(true)
-    expect(validateTransition('SUBMITTED',    'UNDER_REVIEW').success).toBe(true)
-    expect(validateTransition('UNDER_REVIEW', 'OFFERED'     ).success).toBe(true)
-    expect(validateTransition('OFFERED',      'COMPLETED'   ).success).toBe(true)
+    expect(validateTransition('DRAFT',           'QUALIFYING'      ).success).toBe(true)
+    expect(validateTransition('QUALIFYING',      'MATCHED'         ).success).toBe(true)
+    // Phase 4: MATCHED → READY_TO_SUBMIT → SUBMITTED (no longer direct)
+    expect(validateTransition('MATCHED',         'READY_TO_SUBMIT' ).success).toBe(true)
+    expect(validateTransition('READY_TO_SUBMIT', 'SUBMITTED'       ).success).toBe(true)
+    expect(validateTransition('SUBMITTED',       'UNDER_REVIEW'    ).success).toBe(true)
+    expect(validateTransition('UNDER_REVIEW',    'OFFERED'         ).success).toBe(true)
+    expect(validateTransition('OFFERED',         'COMPLETED'       ).success).toBe(true)
   })
 
   it('allows withdrawal from active statuses', () => {

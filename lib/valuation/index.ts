@@ -50,8 +50,12 @@ const STANDARD_DISCLAIMER =
 /**
  * Get a valuation for an asset.
  *
- * Phase 3 behaviour: always returns INSUFFICIENT_DATA.
- * The architecture is in place — plug in MarketObservation queries in Phase 4.
+ * Phase 4 behaviour:
+ *   1. Query MarketObservation for sale prices + auction results for this entity
+ *   2. If < 3 observations → INSUFFICIENT_DATA (honest)
+ *   3. If sufficient → produce confidence-weighted range from SALE_PRICE + AUCTION_RESULT
+ *      (ASKING_PRICE observations are excluded from valuations — they are not sale prices)
+ *   4. Return AVAILABLE with rangeLow, rangeHigh, confidence, observations count
  */
 export async function getValuation(request: ValuationRequest): Promise<ValuationResult> {
   logger.info('Valuation requested', {
@@ -61,21 +65,73 @@ export async function getValuation(request: ValuationRequest): Promise<Valuation
     model:        request.model,
   }, 'finance')
 
-  // Phase 3: no market data yet — honest unavailable response
-  return {
-    status:  'INSUFFICIENT_DATA',
-    assetId: request.assetId,
-    reason:
-      'Insufficient verified market evidence is available to produce a reliable valuation estimate for this asset. Market observations are required before a valuation range can be produced.',
-    disclaimer: STANDARD_DISCLAIMER,
-  }
+  try {
+    const { db } = await import('@/lib/db/client')
 
-  // Phase 4 — replace the above with:
-  // 1. Query MarketObservation table for this manufacturer/model/year
-  // 2. If < 3 observations → INSUFFICIENT_DATA
-  // 3. Apply depreciation curve if observations are dated
-  // 4. Produce confidence-weighted range
-  // 5. Return AVAILABLE with rangeLow, rangeHigh, confidence, method, observations
+    // Only use SALE_PRICE and AUCTION_RESULT — never ASKING_PRICE for valuations
+    const observations = await db.marketObservation.findMany({
+      where: {
+        isActive: true,
+        observationType: { in: ['SALE_PRICE', 'AUCTION_RESULT'] },
+        ...(request.assetId ? { assetId: request.assetId } : {}),
+        ...(request.manufacturer && !request.assetId ? {
+          manufacturer: {
+            name: { contains: request.manufacturer, mode: 'insensitive' },
+          },
+        } : {}),
+      },
+      select: { observedValue: true, observedAt: true, observationType: true, condition: true },
+      orderBy: { observedAt: 'desc' },
+      take: 50,
+    })
+
+    if (observations.length < 3) {
+      return {
+        status:  'INSUFFICIENT_DATA',
+        assetId: request.assetId,
+        reason:
+          `Only ${observations.length} verified sale price observation${observations.length === 1 ? '' : 's'} found. ` +
+          'A minimum of 3 is required to produce a reliable valuation estimate. ' +
+          'As more market data is recorded, a valuation range will become available.',
+        disclaimer: STANDARD_DISCLAIMER,
+      }
+    }
+
+    const values = observations.map(o => Number(o.observedValue))
+    const sorted = [...values].sort((a, b) => a - b)
+    const p25 = sorted[Math.floor(sorted.length * 0.25)]
+    const p75 = sorted[Math.floor(sorted.length * 0.75)]
+    const mid = sorted[Math.floor(sorted.length / 2)]
+
+    // Confidence scales with observation count — capped at 0.75 (market data alone)
+    const confidence = Math.min(0.75, 0.3 + (observations.length / 20) * 0.45)
+
+    return {
+      status:       'AVAILABLE',
+      assetId:      request.assetId,
+      reason:       `Based on ${observations.length} verified market observations (sale prices and auction results).`,
+      rangeLow:     Math.round(p25),
+      rangeHigh:    Math.round(p75),
+      currency:     'GBP',
+      confidence:   Math.round(confidence * 100) / 100,
+      method:       'MARKET_OBSERVATIONS',
+      observations: observations.length,
+      asAtDate:     new Date(),
+      disclaimer:   STANDARD_DISCLAIMER,
+    }
+  } catch (err) {
+    logger.warn('Valuation query failed', {
+      assetId: request.assetId,
+      error:   err instanceof Error ? err.message : String(err),
+    }, 'finance')
+
+    return {
+      status:     'ERROR',
+      assetId:    request.assetId,
+      reason:     'An error occurred while retrieving market data. Please try again.',
+      disclaimer: STANDARD_DISCLAIMER,
+    }
+  }
 }
 
 /**
