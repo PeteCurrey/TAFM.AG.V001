@@ -170,7 +170,41 @@ enum AuditAction {
   REVIEW
   EXPORT
   ACCESS
+  VERIFY
+  REJECT
+  MATCH
+  ASSIGN
 }
+
+enum OpportunityStatus {
+  DRAFT
+  QUALIFYING
+  MATCHED
+  SUBMITTED
+  UNDER_REVIEW
+  OFFERED
+  COMPLETED
+  DECLINED
+  WITHDRAWN
+}
+
+enum EligibilityStatus {
+  ELIGIBLE
+  NOT_ELIGIBLE
+  UNKNOWN
+}
+
+enum MarketObservationSource {
+  DEALER_LISTING
+  AUCTION_RESULT
+  USER_PROVIDED
+  PROVIDER_DATA
+  PUBLIC_RECORD
+  MARKETPLACE_OBSERVATION
+  MANUAL_ENTRY
+}
+
+
 
 // ─── Users & Businesses ───────────────────────────────────────────────────────
 
@@ -684,4 +718,137 @@ model AuditLog {
   @@index([actorId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ─── Opportunity ──────────────────────────────────────────────────────────────
+//
+// Central object connecting Business + Asset + FinanceRequirement + Providers.
+// Every finance journey produces one Opportunity.
+
+model Opportunity {
+  id                  String            @id @default(cuid())
+  reference           String            @unique @default(cuid())
+  businessId          String
+  assetId             String?
+  applicationId       String?
+  status              OpportunityStatus @default(DRAFT)
+  statusHistory       Json              @default("[]")
+  assignedToId        String?
+  matchedProviderIds  String[]          @default([])
+  matchAnalysis       Json?
+  dataQualityScore    Decimal?          @db.Decimal(4, 3)
+  internalNotes       String?
+  qualifyingAt        DateTime?
+  matchedAt           DateTime?
+  submittedAt         DateTime?
+  offeredAt           DateTime?
+  completedAt         DateTime?
+  declinedAt          DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  deletedAt           DateTime?
+
+  @@index([businessId])
+  @@index([status])
+  @@index([assignedToId])
+  @@map("opportunities")
+}
+
+// ─── Market observations ──────────────────────────────────────────────────────
+//
+// Structured record of an observed market data point.
+// No scraping. Source, confidence, and date always required.
+// Never generate fake observations.
+
+model MarketObservation {
+  id              String                  @id @default(cuid())
+  assetId         String?
+  manufacturerId  String?
+  modelId         String?
+  categoryId      String?
+  source          MarketObservationSource
+  observedValue   Decimal                 @db.Decimal(15, 2)
+  currency        String                  @default("GBP")
+  observedAt      DateTime
+  location        String?
+  condition       AssetCondition?
+  yearOfAsset     Int?
+  hoursOrMileage  String?
+  sourceUrl       String?
+  sourceReference String?
+  confidence      Decimal                 @db.Decimal(4, 3)
+  notes           String?
+  isActive        Boolean                 @default(true)
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([assetId])
+  @@index([manufacturerId, modelId])
+  @@index([categoryId])
+  @@index([observedAt])
+  @@map("market_observations")
+}
+
+// ─── Provider criteria ────────────────────────────────────────────────────────
+//
+// Deterministic eligibility rules for a lender.
+// Used by the matching engine — never by AI.
+
+model ProviderCriteria {
+  id                     String     @id @default(cuid())
+  lenderId               String     @unique
+  assetCategories        String[]   @default([])
+  financeStructures      String[]   @default([])
+  minAmount              Decimal    @db.Decimal(15, 2) @default(0)
+  maxAmount              Decimal    @db.Decimal(15, 2) @default(0)
+  currency               String     @default("GBP")
+  minTermMonths          Int        @default(12)
+  maxTermMonths          Int        @default(84)
+  geographyUKOnly        Boolean    @default(true)
+  businessTypes          String[]   @default([])
+  maxAssetAgeYears       Int?
+  newAssetsOnly          Boolean    @default(false)
+  usedAssetsConsidered   Boolean    @default(true)
+  minBusinessAgeMonths   Int?
+  minAnnualTurnover      Decimal?   @db.Decimal(15, 2)
+  requiresFCA            Boolean    @default(false)
+  specialistSectors      String[]   @default([])
+  exclusions             Json?
+  notes                  String?
+  isActive               Boolean    @default(true)
+  createdAt              DateTime   @default(now())
+  updatedAt              DateTime   @updatedAt
+
+  @@index([lenderId])
+  @@map("provider_criteria")
+}
+
+// ─── AI intelligence results ──────────────────────────────────────────────────
+//
+// Persisted result of an AI intelligence pipeline run.
+// Separate from the AIJob (which tracks the execution).
+// This stores the validated structured output and its provenance.
+
+model AIIntelligenceResult {
+  id               String   @id @default(cuid())
+  jobId            String?
+  entityType       String
+  entityId         String?
+  operationType    String
+  inputSummary     String?
+  result           Json
+  confidence       Decimal  @db.Decimal(4, 3)
+  dataStatus       DataStatus @default(UNKNOWN)
+  requiresReview   Boolean  @default(true)
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  reviewOutcome    String?
+  isSuperseded     Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([jobId])
+  @@index([dataStatus])
+  @@index([requiresReview])
+  @@map("ai_intelligence_results")
 }

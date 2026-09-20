@@ -49,7 +49,8 @@ export const openAIProvider: AIProviderInterface = {
 
     const response = await client.chat.completions.create({
       model,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: messages.map((m) => ({ role: m.role, content: m.content as any })),
       ...(request.temperature !== undefined && { temperature: request.temperature }),
       ...(request.maxTokens !== undefined && { max_tokens: request.maxTokens }),
     })
@@ -87,7 +88,8 @@ export const openAIProvider: AIProviderInterface = {
 
     const response = await client.chat.completions.create({
       model,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      messages: messages.map((m) => ({ role: m.role, content: m.content as any })),
       response_format: { type: 'json_object' },
       ...(request.temperature !== undefined && { temperature: request.temperature }),
       ...(request.maxTokens !== undefined && { max_tokens: request.maxTokens }),

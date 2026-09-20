@@ -42,9 +42,22 @@ export interface AIStructuredRequest<T> extends AICompletionRequest {
   schemaName: string
 }
 
+// Vision content part types (OpenAI vision API)
+export interface AITextPart {
+  type:  'text'
+  text:  string
+}
+
+export interface AIImagePart {
+  type:       'image_url'
+  image_url:  { url: string; detail?: 'auto' | 'low' | 'high' }
+}
+
+export type AIContentPart = AITextPart | AIImagePart
+
 export interface AIMessage {
-  role: 'system' | 'user' | 'assistant'
-  content: string
+  role:    'system' | 'user' | 'assistant'
+  content: string | AIContentPart[]  // string for text, array for vision
 }
 
 // ─── AI responses ─────────────────────────────────────────────────────────────

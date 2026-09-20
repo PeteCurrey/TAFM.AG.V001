@@ -58,3 +58,8 @@ export async function checkDatabaseHealth(): Promise<{
 }
 
 export default prisma
+
+// ── Named alias — Phase 3+ files import { db } for readability
+// db is null-safe in nature: always defined when DATABASE_URL is present,
+// callers guard with `if (db)` for graceful degradation when DB is absent.
+export const db = prisma

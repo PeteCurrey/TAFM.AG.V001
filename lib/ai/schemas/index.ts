@@ -82,3 +82,107 @@ export const valueAnalysisSchema = z.object({
 })
 
 export type ValueAnalysisOutput = z.infer<typeof valueAnalysisSchema>
+
+// ─── Asset intelligence summary ───────────────────────────────────────────────
+//
+// Full structured intelligence output for an asset.
+// Distinguishes CONFIRMED (from provided data) from INFERRED (by AI) from MISSING.
+
+export const assetIntelligenceSummarySchema = z.object({
+  confirmedInformation: z.array(z.object({
+    field:       z.string(),
+    value:       z.string(),
+    source:      z.enum(['PROVIDED', 'DOCUMENT', 'IMAGE']),
+  })).describe('Fields confirmed from provided input'),
+
+  inferredInformation: z.array(z.object({
+    field:       z.string(),
+    value:       z.string(),
+    confidence:  z.number().min(0).max(1),
+    reasoning:   z.string(),
+  })).describe('Fields inferred by AI — NOT confirmed'),
+
+  missingInformation: z.array(z.object({
+    field:       z.string(),
+    importance:  z.enum(['CRITICAL', 'IMPORTANT', 'OPTIONAL']),
+    reason:      z.string(),
+  })).describe('Fields that could not be determined'),
+
+  verificationRequired: z.array(z.string())
+    .describe('Fields that require human or document verification before use'),
+
+  overallConfidence:  z.number().min(0).max(1),
+  // Uses DB DataStatus enum values: VERIFIED | PROVISIONAL | CALCULATED | USER_PROVIDED | UNKNOWN
+  dataStatus:         z.enum(['VERIFIED', 'PROVISIONAL', 'CALCULATED', 'USER_PROVIDED', 'UNKNOWN']),
+  cannotIdentify:     z.boolean(),
+  cannotIdentifyReason: z.string().optional(),
+  disclaimer:         z.string().describe('Mandatory: this output is AI-generated and requires review'),
+})
+
+export type AssetIntelligenceSummaryOutput = z.infer<typeof assetIntelligenceSummarySchema>
+
+// ─── Image analysis result ────────────────────────────────────────────────────
+//
+// Result of AI analysis of an asset image.
+// cannotIdentify: true is a VALID and expected outcome — never manufacture an ID.
+
+export const imageAnalysisSchema = z.object({
+  identified:           z.boolean(),
+  cannotIdentify:       z.boolean(),
+  cannotIdentifyReason: z.string().optional()
+    .describe('Required when cannotIdentify is true'),
+
+  assetCategory:    z.string().optional().describe('Broad category if identifiable'),
+  manufacturer:     z.string().optional().describe('Manufacturer name if readable'),
+  modelFamily:      z.string().optional().describe('Model family or series if identifiable'),
+  specificModel:    z.string().optional().describe('Exact model only if clearly identifiable from image'),
+
+  visibleFeatures: z.array(z.string())
+    .describe('Observable physical features — state only what is visible'),
+
+  conditionIndicators: z.array(z.object({
+    indicator: z.string(),
+    observed:  z.string(),
+  })).describe('Observable condition evidence — do not speculate'),
+
+  confidence:       z.number().min(0).max(1),
+  imageQuality:     z.enum(['GOOD', 'ADEQUATE', 'POOR', 'UNUSABLE']),
+  disclaimer:       z.literal('Image analysis is indicative only. Manufacturer and model identification requires verification from documentation or physical inspection.'),
+})
+
+export type ImageAnalysisOutput = z.infer<typeof imageAnalysisSchema>
+
+// ─── Document extraction result ───────────────────────────────────────────────
+//
+// Result of AI extraction from an uploaded document.
+// All extracted fields carry individual confidence scores.
+// Never treat extracted data as verified — documents may be altered.
+
+export const documentExtractionSchema = z.object({
+  documentType: z.enum([
+    'INVOICE',
+    'SPECIFICATION_SHEET',
+    'ASSET_SCHEDULE',
+    'REGISTRATION_DOCUMENT',
+    'VALUATION_REPORT',
+    'PURCHASE_AGREEMENT',
+    'UNKNOWN',
+  ]),
+
+  extractedFields: z.array(z.object({
+    field:       z.string(),
+    value:       z.string(),
+    confidence:  z.number().min(0).max(1),
+    rawText:     z.string().optional().describe('The literal text from the document'),
+  })),
+
+  missingFields:   z.array(z.string()).describe('Expected fields not found in document'),
+
+  overallConfidence: z.number().min(0).max(1),
+  extractionQuality: z.enum(['HIGH', 'MEDIUM', 'LOW', 'FAILED']),
+  notes:           z.string().optional(),
+
+  disclaimer: z.literal('Document extraction is AI-assisted. Extracted values require verification against original documents. Documents are not authenticated by this process.'),
+})
+
+export type DocumentExtractionOutput = z.infer<typeof documentExtractionSchema>

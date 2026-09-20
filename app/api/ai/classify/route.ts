@@ -6,25 +6,25 @@ import { aiService } from '@/lib/ai/service'
 import { createJob, startJob, completeJob, failJob } from '@/lib/ai/jobs'
 import { recordUsage } from '@/lib/ai/usage'
 import { assetClassificationSchema } from '@/lib/ai/schemas'
+import { selectModel } from '@/lib/ai/router'
 import { validate } from '@/lib/validation'
 import { z } from 'zod'
 
 // ─── AI classify endpoint ──────────────────────────────────────────────────────
 //
 // SERVER-SIDE ONLY. The OpenAI key is NEVER sent to the client.
-// All AI operations are logged and auditable through the jobs system.
+// All AI operations are logged, model-routed and auditable.
 
 const classifyInputSchema = z.object({
   description: z.string().min(5, 'Description must be at least 5 characters').max(2000),
   manufacturer: z.string().max(200).optional(),
-  model: z.string().max(200).optional(),
-  year: z.number().int().min(1900).max(new Date().getFullYear() + 2).optional(),
-  assetType: z.string().max(200).optional(),
-  entityId: z.string().optional(), // Optional entity to associate with this job
+  model:        z.string().max(200).optional(),
+  year:         z.number().int().min(1900).max(new Date().getFullYear() + 2).optional(),
+  assetType:    z.string().max(200).optional(),
+  entityId:     z.string().optional(),
 })
 
 export async function POST(req: NextRequest) {
-  // Rate limit AI endpoints strictly — they cost money
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
   const rateLimitResult = rateLimit(`ai-classify:${ip}`, { limit: 10, windowMs: 60_000 })
   if (!rateLimitResult.allowed) {
@@ -34,27 +34,18 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Check AI is configured before doing anything else
   if (!isAIAvailable()) {
     return NextResponse.json(
-      {
-        error: 'AI service not configured',
-        message: 'The AI classification service is not currently available. Please configure an AI provider.',
-        status: 'UNAVAILABLE',
-      },
+      { error: 'AI service not configured', status: 'UNAVAILABLE' },
       { status: 503 },
     )
   }
 
   let body: unknown
-  try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
-  }
+  try { body = await req.json() }
+  catch { return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 }) }
 
   const { data: input, errors } = validate(classifyInputSchema, body)
-
   if (errors) {
     return NextResponse.json(
       { error: 'Validation failed', issues: errors.flatten().fieldErrors },
@@ -62,75 +53,79 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Create audit trail before running AI
-  const job = createJob({
-    jobType: 'ASSET_CLASSIFICATION',
+  const modelConfig = selectModel('TEXT_CLASSIFICATION')
+
+  const job = await createJob({
+    jobType:    'ASSET_CLASSIFICATION',
     entityType: 'asset',
-    entityId: input!.entityId,
-    provider: 'openai',
-    model: 'gpt-4o-mini',
+    entityId:   input!.entityId,
+    provider:   modelConfig.provider,
+    model:      modelConfig.model,
   })
 
-  startJob(job.id)
-
+  await startJob(job.id)
   const startTime = Date.now()
 
   try {
     const userMessage = [
       `Description: ${input!.description}`,
       input!.manufacturer ? `Manufacturer: ${input!.manufacturer}` : '',
-      input!.model ? `Model: ${input!.model}` : '',
-      input!.year ? `Year: ${input!.year}` : '',
-      input!.assetType ? `Asset type hint: ${input!.assetType}` : '',
+      input!.model        ? `Model: ${input!.model}`               : '',
+      input!.year         ? `Year: ${input!.year}`                 : '',
+      input!.assetType    ? `Asset type hint: ${input!.assetType}` : '',
     ].filter(Boolean).join('\n')
 
     const result = await aiService.structured({
-      model: 'gpt-4o-mini',
+      model:       modelConfig.model,
+      temperature: modelConfig.temperature,
       systemPrompt:
         'You classify business assets for a UK finance marketplace. Return only factual classifications based on the information provided. If information is insufficient, say so explicitly — do not invent or assume details.',
-      messages: [{ role: 'user', content: userMessage }],
-      schema: assetClassificationSchema,
+      messages:   [{ role: 'user', content: userMessage }],
+      schema:     assetClassificationSchema,
       schemaName: 'AssetClassification',
     })
 
     const duration = Date.now() - startTime
 
     if (!result) {
-      failJob(job.id, 'Classification failed — no result')
+      await failJob(job.id, 'Classification failed — no result')
       return NextResponse.json(
         { error: 'Classification failed', jobId: job.id, status: 'FAILED' },
         { status: 502 },
       )
     }
 
-    // Record usage
     recordUsage({
-      provider: 'openai',
-      model: 'gpt-4o-mini',
-      jobType: 'ASSET_CLASSIFICATION',
-      jobId: job.id,
-      promptTokens: result.usage?.promptTokens ?? 0,
+      provider:         modelConfig.provider,
+      model:            modelConfig.model,
+      jobType:          'ASSET_CLASSIFICATION',
+      jobId:            job.id,
+      promptTokens:     result.usage?.promptTokens ?? 0,
       completionTokens: result.usage?.completionTokens ?? 0,
     })
 
-    completeJob(job.id, {
-      outputSummary: `Category: ${result.result?.category}, Confidence: ${result.result?.categoryConfidence}`,
-      confidence: result.result?.categoryConfidence,
-      durationMs: duration,
+    await completeJob(job.id, {
+      outputSummary:    `Category: ${result.result?.category}, Confidence: ${result.result?.categoryConfidence}`,
+      confidence:       result.result?.categoryConfidence,
+      promptTokens:     result.usage?.promptTokens,
+      completionTokens: result.usage?.completionTokens,
+      totalTokens:      result.usage?.totalTokens,
+      durationMs:       duration,
     })
 
     return NextResponse.json({
       data: result.result,
       meta: {
-        jobId: job.id,
-        status: 'COMPLETED',
+        jobId:         job.id,
+        status:        'COMPLETED',
+        model:         modelConfig.model,
         requiresReview: true,
-        disclaimer: 'This classification was generated by AI and requires human review before use in any finance decision.',
+        disclaimer:    'This classification was generated by AI and requires human review before use in any finance decision.',
       },
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
-    failJob(job.id, message)
+    await failJob(job.id, message)
     return NextResponse.json(
       { error: 'Internal error', jobId: job.id, status: 'FAILED' },
       { status: 500 },
