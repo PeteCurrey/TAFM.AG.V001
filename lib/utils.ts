@@ -151,9 +151,30 @@ export function isServer(): boolean {
 // ─── URL ──────────────────────────────────────────────────────────────────────
 
 /**
+ * Return the canonical site URL, sanitised defensively.
+ *
+ * The Vercel dashboard sometimes stores env vars with surrounding quotes
+ * (e.g. `"https://tafm.co.uk"`) when copy-pasted directly.
+ * `new URL('"https://...')` throws ERR_INVALID_URL at build time.
+ *
+ * This function strips leading/trailing `"` and `'` characters and ensures
+ * the URL uses `https://` in production so `new URL(...)` always succeeds.
+ */
+export function getSiteUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tafm.co.uk'
+  // Strip surrounding quotes (copy-paste artefact from Vercel dashboard)
+  const stripped = raw.replace(/^["'\s]+|["'\s]+$/g, '')
+  // Normalise http:// → https:// in production
+  if (process.env.NODE_ENV === 'production') {
+    return stripped.replace(/^http:\/\//, 'https://')
+  }
+  return stripped
+}
+
+/**
  * Build an absolute URL from a path, using the configured site URL.
  */
 export function absoluteUrl(path: string): string {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tafm.co.uk'
+  const base = getSiteUrl()
   return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
 }

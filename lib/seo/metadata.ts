@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import type { SEOConfig, OGImage } from '@/types/seo'
-import { absoluteUrl } from '@/lib/utils'
+import { absoluteUrl, getSiteUrl } from '@/lib/utils'
 
 // ─── Default metadata ─────────────────────────────────────────────────────────
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'TAFM'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tafm.co.uk'
+const SITE_URL = getSiteUrl()
 
 const DEFAULT_OG_IMAGE: OGImage = {
   url: `${SITE_URL}/images/og-default.jpg`,

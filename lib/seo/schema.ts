@@ -1,6 +1,7 @@
 import type { StructuredDataObject, BreadcrumbItem } from '@/types/seo'
+import { getSiteUrl } from '@/lib/utils'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tafm.co.uk'
+const SITE_URL = getSiteUrl()
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME ?? 'TAFM'
 
 // ─── Organisation ─────────────────────────────────────────────────────────────

@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next'
+import { getSiteUrl } from '@/lib/utils'
 
 // ─── robots.txt ───────────────────────────────────────────────────────────────
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tafm.co.uk'
+  const siteUrl = getSiteUrl()
   const isProduction = process.env.NODE_ENV === 'production'
 
   if (!isProduction) {
