@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
@@ -83,10 +84,10 @@ export default function HomePage() {
   return (
     <>
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 1 — DARK CINEMATIC HERO
+          SECTION 1 — CINEMATIC HERO WITH VEHICLE & SPECIALIST
       ══════════════════════════════════════════════════════════════════════ */}
       <section
-        className="surface-dark relative min-h-dvh flex flex-col overflow-hidden"
+        className="relative min-h-dvh flex flex-col justify-between overflow-hidden bg-[#050505]"
         aria-label="TAFM — The Asset Finance Marketplace"
       >
         {/* Skip to content */}
@@ -97,17 +98,38 @@ export default function HomePage() {
           Skip to main content
         </a>
 
-        {/* Subtle orange atmospheric glow — background only */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 65% 40%, rgba(255,106,26,0.06) 0%, transparent 70%)',
-          }}
-        />
+        {/* Hero photographic background */}
+        <div className="absolute inset-0 z-0 select-none pointer-events-none">
+          <Image
+            src="/images/hero-cherry-picker.jpg"
+            alt="Truck-mounted cherry picker with asset finance specialist"
+            fill
+            priority
+            quality={92}
+            className="object-cover object-[center_right] lg:object-right filter brightness-[0.92] contrast-[1.04]"
+          />
+          {/* Directional scrim: darkens the left side where headline/CTAs sit while leaving the truck & character clear */}
+          <div
+            className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/75 to-transparent w-full lg:w-[62%]"
+            aria-hidden="true"
+          />
+          {/* Subtle top & bottom blend */}
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-[#050505]/70 via-transparent to-[#050505] pointer-events-none"
+            aria-hidden="true"
+          />
+          {/* Subtle warm amber/orange rim reflection */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
+            aria-hidden="true"
+            style={{
+              background: 'radial-gradient(ellipse 50% 50% at 75% 55%, rgba(255,106,26,0.18) 0%, transparent 70%)',
+            }}
+          />
+        </div>
 
         {/* Hero grid */}
-        <div className="container-tafm flex-1 grid grid-cols-1 lg:grid-cols-2 items-center gap-0 min-h-dvh">
+        <div className="container-tafm relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 items-center gap-0 min-h-dvh">
           {/* Left: typography */}
           <div className="flex flex-col justify-center py-20 lg:py-0 lg:pr-16">
             {/* Eyebrow */}
@@ -116,7 +138,7 @@ export default function HomePage() {
             </p>
 
             {/* Primary headline — architectural weight through scale, not boldness */}
-            <h1 className="text-display-xl font-extralight text-white leading-[1.0] tracking-[0.04em] mb-5">
+            <h1 className="text-display-xl font-extralight text-white leading-[1.0] tracking-[0.04em] mb-5 drop-shadow-sm">
               THE ASSET
               <br />
               <span className="text-[var(--color-text-on-dark-2)]">FINANCE</span>
@@ -125,7 +147,7 @@ export default function HomePage() {
             </h1>
 
             <p
-              className="text-heading-md font-light text-[var(--color-text-on-dark-2)] mb-3"
+              className="text-heading-md font-light text-[var(--color-text-on-dark-2)] mb-3 drop-shadow-sm"
               style={{ letterSpacing: '0.01em' }}
             >
               Finance the asset.
@@ -133,7 +155,7 @@ export default function HomePage() {
               Not the hassle.
             </p>
 
-            <p className="text-body-sm text-[var(--color-text-on-dark-3)] font-light max-w-md leading-relaxed mb-8">
+            <p className="text-body-sm text-[var(--color-text-on-dark-3)] font-light max-w-md leading-relaxed mb-8 drop-shadow-sm">
               TAFM connects businesses, asset suppliers and finance providers around the acquisition of business equipment. One application. Multiple financing possibilities.
             </p>
 
@@ -155,17 +177,15 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right: 3D visual */}
+          {/* Right column: clear space allowing full visibility of character and truck */}
           <div
-            className="hidden lg:flex items-center justify-center relative h-full min-h-[600px]"
+            className="hidden lg:block relative h-full min-h-[600px] pointer-events-none"
             aria-hidden="true"
-          >
-            <HeroVisualClient />
-          </div>
+          />
         </div>
 
         {/* Scroll indicator */}
-        <div className="container-tafm pb-8 flex justify-start" aria-hidden="true">
+        <div className="container-tafm relative z-10 pb-8 flex justify-start" aria-hidden="true">
           <div className="flex flex-col items-center gap-2 opacity-30">
             <span className="text-caption text-white tracking-widest">SCROLL</span>
             <div className="w-px h-8 bg-white/30" />
