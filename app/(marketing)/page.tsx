@@ -109,14 +109,14 @@ export default function HomePage() {
         {/* Hero grid */}
         <div className="container-tafm flex-1 grid grid-cols-1 lg:grid-cols-2 items-center gap-0 min-h-dvh">
           {/* Left: typography */}
-          <div className="flex flex-col justify-center py-24 lg:py-0 lg:pr-16">
+          <div className="flex flex-col justify-center py-20 lg:py-0 lg:pr-16">
             {/* Eyebrow */}
-            <p className="text-label text-[var(--color-text-on-dark-muted)] mb-8 tracking-widest">
+            <p className="text-label text-[var(--color-text-on-dark-muted)] mb-4 tracking-widest">
               UK Asset Finance
             </p>
 
             {/* Primary headline — architectural weight through scale, not boldness */}
-            <h1 className="text-display-2xl font-extralight text-white leading-[1.0] tracking-[0.04em] mb-6">
+            <h1 className="text-display-xl font-extralight text-white leading-[1.0] tracking-[0.04em] mb-5">
               THE ASSET
               <br />
               <span className="text-[var(--color-text-on-dark-2)]">FINANCE</span>
@@ -125,7 +125,7 @@ export default function HomePage() {
             </h1>
 
             <p
-              className="text-heading-lg font-light text-[var(--color-text-on-dark-2)] mb-4"
+              className="text-heading-md font-light text-[var(--color-text-on-dark-2)] mb-3"
               style={{ letterSpacing: '0.01em' }}
             >
               Finance the asset.
@@ -133,22 +133,22 @@ export default function HomePage() {
               Not the hassle.
             </p>
 
-            <p className="text-body text-[var(--color-text-on-dark-3)] font-light max-w-md leading-relaxed mb-12">
+            <p className="text-body-sm text-[var(--color-text-on-dark-3)] font-light max-w-md leading-relaxed mb-8">
               TAFM connects businesses, asset suppliers and finance providers around the acquisition of business equipment. One application. Multiple financing possibilities.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4">
-              <Button as="a" href="/apply" variant="primary" size="lg">
+            <div className="flex flex-wrap items-center gap-3">
+              <Button as="a" href="/apply" variant="primary" size="md">
                 Explore asset finance
               </Button>
-              <Button as="a" href="/for-suppliers" variant="secondary" size="lg">
+              <Button as="a" href="/for-suppliers" variant="secondary" size="md">
                 For suppliers
               </Button>
             </div>
 
             {/* Thin rule */}
-            <div className="mt-16 pt-8 border-t border-[var(--color-border-dark)]">
+            <div className="mt-10 pt-6 border-t border-[var(--color-border-dark)]">
               <p className="text-caption text-[var(--color-text-on-dark-muted)] font-light">
                 Finance subject to status and eligibility. Terms and conditions apply.
               </p>
