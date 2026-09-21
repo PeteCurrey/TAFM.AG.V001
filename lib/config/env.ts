@@ -96,7 +96,7 @@ function validateEnv() {
       .join('\n')
     // Warn — env vars are optional at build time on Vercel; runtime validation catches real gaps
     console.warn(`\n[TAFM] Environment configuration warning:\n${formatted}\n`)
-    return envSchema.parse(cleaned)
+    return envSchema.parse({})
   }
 
   return result.data

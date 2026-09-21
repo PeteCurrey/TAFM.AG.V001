@@ -52,14 +52,8 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Transpile Three.js and related packages for Next.js compatibility
-  transpilePackages: [
-    'three',
-    '@react-three/fiber',
-    '@react-three/drei',
-    '@react-three/postprocessing',
-    'postprocessing',
-  ],
+  // Transpile Three.js for Next.js compatibility
+  transpilePackages: ['three'],
 
   // Experimental features for Next.js 15
   experimental: {
@@ -67,8 +61,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       'framer-motion',
       'three',
-      '@react-three/fiber',
-      '@react-three/drei',
     ],
   },
 

@@ -1,197 +1,190 @@
-// @ts-nocheck — R3F JSX elements (group, mesh, lineSegments etc.) use a custom reconciler.
-// TypeScript cannot resolve these via JSX.IntrinsicElements in Next.js 15 / React 19.
 'use client'
 
-
-import { useRef, useMemo } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Environment } from '@react-three/drei'
-import { EffectComposer, Bloom } from '@react-three/postprocessing'
+import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import { useReducedMotion } from 'framer-motion'
 
-// ─── Hero geometric form ──────────────────────────────────────────────────────
+// ─── Hero visual canvas (Vanilla Three.js) ───────────────────────────────────
 //
 // An abstract architectural geometric composition.
 // Reads as: precision engineering, industrial asset intelligence.
+// Built with vanilla Three.js for direct WebGL control and seamless React 19 support.
+//
 // NOT: spinning cube, AI tech blob, crypto token.
-
-function HeroGeometry() {
-  const groupRef = useRef<THREE.Group>(null)
-  const reducedMotion = useReducedMotion()
-  const { pointer } = useThree()
-
-  // Primary form: a large slightly-flattened octahedron — structural, dimensional
-  const primaryGeometry = useMemo(() => new THREE.OctahedronGeometry(1.6, 3), [])
-  const primaryMaterial = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#0D0C0B'),
-        metalness: 0.85,
-        roughness: 0.15,
-        envMapIntensity: 1.2,
-      }),
-    [],
-  )
-
-  // Edge wireframe: orange precision lines
-  const edgeGeometry = useMemo(() => new THREE.EdgesGeometry(new THREE.OctahedronGeometry(1.6, 1)), [])
-  const edgeMaterial = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color('#FF6A1A'),
-        transparent: true,
-        opacity: 0.6,
-      }),
-    [],
-  )
-
-  // Secondary form: smaller offset octahedron for depth
-  const secondaryGeometry = useMemo(() => new THREE.OctahedronGeometry(0.85, 2), [])
-  const secondaryMaterial = useMemo(
-    () =>
-      new THREE.MeshPhysicalMaterial({
-        color: new THREE.Color('#0A0908'),
-        metalness: 0.9,
-        roughness: 0.1,
-        envMapIntensity: 1,
-        transparent: true,
-        opacity: 0.7,
-      }),
-    [],
-  )
-
-  // Secondary edges
-  const secondaryEdgeGeometry = useMemo(
-    () => new THREE.EdgesGeometry(new THREE.OctahedronGeometry(0.85, 1)),
-    [],
-  )
-  const secondaryEdgeMaterial = useMemo(
-    () =>
-      new THREE.LineBasicMaterial({
-        color: new THREE.Color('#FF8C42'),
-        transparent: true,
-        opacity: 0.35,
-      }),
-    [],
-  )
-
-  // Target rotation for pointer-following
-  const targetRotation = useRef({ x: -0.1, y: 0.2 })
-  const currentRotation = useRef({ x: -0.1, y: 0.2 })
-
-  useFrame((_, delta) => {
-    if (!groupRef.current || reducedMotion) return
-
-    // Update target from pointer position
-    targetRotation.current.x = -pointer.y * 0.3 - 0.1
-    targetRotation.current.y = pointer.x * 0.4 + 0.2
-
-    // Smooth lerp towards target (precision control — not jittery)
-    const lerpFactor = 1 - Math.pow(0.02, delta)
-    currentRotation.current.x += (targetRotation.current.x - currentRotation.current.x) * lerpFactor
-    currentRotation.current.y += (targetRotation.current.y - currentRotation.current.y) * lerpFactor
-
-    // Slow continuous base rotation
-    currentRotation.current.y += delta * 0.08
-
-    groupRef.current.rotation.x = currentRotation.current.x
-    groupRef.current.rotation.y = currentRotation.current.y
-  })
-
-  return (
-    <group ref={groupRef}>
-      {/* Primary form */}
-      <mesh geometry={primaryGeometry} material={primaryMaterial} />
-      <lineSegments geometry={edgeGeometry} material={edgeMaterial} />
-
-      {/* Secondary offset form — depth and complexity */}
-      <mesh
-        geometry={secondaryGeometry}
-        material={secondaryMaterial}
-        position={[0.9, -0.5, 0.3]}
-        rotation={[0.4, 0.8, 0.2]}
-      />
-      <lineSegments
-        geometry={secondaryEdgeGeometry}
-        material={secondaryEdgeMaterial}
-        position={[0.9, -0.5, 0.3]}
-        rotation={[0.4, 0.8, 0.2]}
-      />
-    </group>
-  )
-}
-
-// ─── Scene ────────────────────────────────────────────────────────────────────
-
-function Scene() {
-  return (
-    <>
-      {/* Atmospheric lighting */}
-      <ambientLight intensity={0.08} color="#1a1510" />
-
-      {/* Primary orange-tinted key light */}
-      <pointLight
-        position={[-3.5, 3, 2]}
-        intensity={120}
-        color="#FF7030"
-        decay={2}
-      />
-
-      {/* Cool fill light from right */}
-      <pointLight
-        position={[4, -1, 3]}
-        intensity={20}
-        color="#a0b8d0"
-        decay={2}
-      />
-
-      {/* Subtle back light for depth */}
-      <pointLight
-        position={[0, -3, -3]}
-        intensity={10}
-        color="#0a0a14"
-        decay={2}
-      />
-
-      <Environment preset="night" />
-
-      <HeroGeometry />
-
-      {/* Bloom post-processing — glow on orange edges */}
-      <EffectComposer>
-        <Bloom
-          luminanceThreshold={0.4}
-          luminanceSmoothing={0.6}
-          intensity={0.8}
-          radius={0.7}
-        />
-      </EffectComposer>
-    </>
-  )
-}
-
-// ─── Hero visual canvas ───────────────────────────────────────────────────────
 
 interface HeroVisualProps {
   className?: string
 }
 
 export function HeroVisual({ className }: HeroVisualProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const reducedMotion = useReducedMotion()
+
+  useEffect(() => {
+    const container = containerRef.current
+    const canvas = canvasRef.current
+    if (!container || !canvas) return
+
+    // ─── Scene & Camera Setup ───────────────────────────────────────────────
+    const scene = new THREE.Scene()
+    const width = container.clientWidth || 600
+    const height = container.clientHeight || 600
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
+    camera.position.set(0, 0, 5)
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    })
+    renderer.setSize(width, height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.2
+
+    // ─── Lighting ───────────────────────────────────────────────────────────
+    const ambientLight = new THREE.AmbientLight(0x1a1510, 0.6)
+    scene.add(ambientLight)
+
+    const primaryOrangeLight = new THREE.PointLight(0xFF7030, 80, 20, 1.5)
+    primaryOrangeLight.position.set(-3.5, 3, 2)
+    scene.add(primaryOrangeLight)
+
+    const coolFillLight = new THREE.PointLight(0xa0b8d0, 25, 20, 1.5)
+    coolFillLight.position.set(4, -1, 3)
+    scene.add(coolFillLight)
+
+    const subtleBackLight = new THREE.PointLight(0x0a0a14, 15, 20, 1.5)
+    subtleBackLight.position.set(0, -3, -3)
+    scene.add(subtleBackLight)
+
+    // ─── Geometries & Materials ─────────────────────────────────────────────
+    const group = new THREE.Group()
+
+    // Primary form: structural octahedron
+    const primaryGeometry = new THREE.OctahedronGeometry(1.6, 3)
+    const primaryMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x0D0C0B,
+      metalness: 0.85,
+      roughness: 0.15,
+      clearcoat: 0.2,
+    })
+    const primaryMesh = new THREE.Mesh(primaryGeometry, primaryMaterial)
+    group.add(primaryMesh)
+
+    // Primary wireframe edges: orange precision accent
+    const edgeGeometry = new THREE.EdgesGeometry(new THREE.OctahedronGeometry(1.6, 1))
+    const edgeMaterial = new THREE.LineBasicMaterial({
+      color: 0xFF6A1A,
+      transparent: true,
+      opacity: 0.65,
+    })
+    const edgeLines = new THREE.LineSegments(edgeGeometry, edgeMaterial)
+    group.add(edgeLines)
+
+    // Secondary offset form: dimensional depth
+    const secondaryGeometry = new THREE.OctahedronGeometry(0.85, 2)
+    const secondaryMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x0A0908,
+      metalness: 0.9,
+      roughness: 0.1,
+      transparent: true,
+      opacity: 0.7,
+    })
+    const secondaryMesh = new THREE.Mesh(secondaryGeometry, secondaryMaterial)
+    secondaryMesh.position.set(0.9, -0.5, 0.3)
+    secondaryMesh.rotation.set(0.4, 0.8, 0.2)
+    group.add(secondaryMesh)
+
+    // Secondary edges
+    const secondaryEdgeGeometry = new THREE.EdgesGeometry(new THREE.OctahedronGeometry(0.85, 1))
+    const secondaryEdgeMaterial = new THREE.LineBasicMaterial({
+      color: 0xFF8C42,
+      transparent: true,
+      opacity: 0.35,
+    })
+    const secondaryEdgeLines = new THREE.LineSegments(secondaryEdgeGeometry, secondaryEdgeMaterial)
+    secondaryEdgeLines.position.set(0.9, -0.5, 0.3)
+    secondaryEdgeLines.rotation.set(0.4, 0.8, 0.2)
+    group.add(secondaryEdgeLines)
+
+    scene.add(group)
+
+    // ─── Rotation & Pointer Tracking ────────────────────────────────────────
+    let targetRotationX = -0.1
+    let targetRotationY = 0.2
+    let currentRotationX = -0.1
+    let currentRotationY = 0.2
+
+    const handlePointerMove = (event: MouseEvent) => {
+      if (reducedMotion) return
+      const pointerX = (event.clientX / window.innerWidth) * 2 - 1
+      const pointerY = -(event.clientY / window.innerHeight) * 2 + 1
+      targetRotationX = -pointerY * 0.3 - 0.1
+      targetRotationY = pointerX * 0.4 + 0.2
+    }
+
+    window.addEventListener('mousemove', handlePointerMove, { passive: true })
+
+    // ─── Animation Loop ─────────────────────────────────────────────────────
+    let animationFrameId: number
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate)
+
+      if (!reducedMotion) {
+        currentRotationX += (targetRotationX - currentRotationX) * 0.04
+        currentRotationY += (targetRotationY - currentRotationY) * 0.04
+        currentRotationY += 0.001 // Slow continuous base rotation
+      }
+
+      group.rotation.x = currentRotationX
+      group.rotation.y = currentRotationY
+
+      renderer.render(scene, camera)
+    }
+
+    animate()
+
+    // ─── Resize Handling ────────────────────────────────────────────────────
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: newWidth, height: newHeight } = entry.contentRect
+        if (newWidth === 0 || newHeight === 0) continue
+        camera.aspect = newWidth / newHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(newWidth, newHeight)
+      }
+    })
+
+    resizeObserver.observe(container)
+
+    // ─── Cleanup ────────────────────────────────────────────────────────────
+    return () => {
+      cancelAnimationFrame(animationFrameId)
+      window.removeEventListener('mousemove', handlePointerMove)
+      resizeObserver.disconnect()
+
+      primaryGeometry.dispose()
+      primaryMaterial.dispose()
+      edgeGeometry.dispose()
+      edgeMaterial.dispose()
+
+      secondaryGeometry.dispose()
+      secondaryMaterial.dispose()
+      secondaryEdgeGeometry.dispose()
+      secondaryEdgeMaterial.dispose()
+
+      renderer.dispose()
+    }
+  }, [reducedMotion])
+
   return (
-    <div className={className} aria-hidden="true">
-      <Canvas
-        camera={{ position: [0, 0, 5], fov: 45 }}
-        gl={{
-          antialias: true,
-          alpha: true,
-          powerPreference: 'high-performance',
-        }}
-        dpr={[1, 2]}
-        style={{ background: 'transparent' }}
-      >
-        <Scene />
-      </Canvas>
+    <div ref={containerRef} className={className ?? 'w-full h-full min-h-[500px] flex items-center justify-center'} aria-hidden="true">
+      <canvas ref={canvasRef} className="w-full h-full max-w-full max-h-full block" />
     </div>
   )
 }
