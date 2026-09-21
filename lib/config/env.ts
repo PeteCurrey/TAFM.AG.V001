@@ -56,20 +56,34 @@ const envSchema = z.object({
 // ─── Validation ────────────────────────────────────────────────────────────────
 
 function validateEnv() {
-  // Pre-clean raw environment variables to remove surrounding quotes and empty strings
-  const cleaned: Record<string, string | undefined> = {}
-  for (const [key, val] of Object.entries(process.env)) {
-    cleaned[key] = cleanEnvValue(val)
+  // Read each variable explicitly using process.env.KEY — webpack can statically
+  // analyse these and replace them at build time.
+  // DO NOT use Object.entries(process.env) or process.env[dynamicKey] — webpack
+  // cannot statically analyse full env iteration and the SWC minifier crashes.
+  const cleaned = {
+    NODE_ENV:                process.env.NODE_ENV,
+    DATABASE_URL:            cleanEnvValue(process.env.DATABASE_URL),
+    NEXT_PUBLIC_SITE_URL:    cleanEnvValue(process.env.NEXT_PUBLIC_SITE_URL),
+    NEXT_PUBLIC_SITE_NAME:   cleanEnvValue(process.env.NEXT_PUBLIC_SITE_NAME),
+    OPENAI_API_KEY:          cleanEnvValue(process.env.OPENAI_API_KEY),
+    OPENAI_MODEL_PRIMARY:    cleanEnvValue(process.env.OPENAI_MODEL_PRIMARY),
+    OPENAI_MODEL_FAST:       cleanEnvValue(process.env.OPENAI_MODEL_FAST),
+    OPENAI_MODEL_REASONING:  cleanEnvValue(process.env.OPENAI_MODEL_REASONING),
+    OPENAI_PROJECT_ID:       cleanEnvValue(process.env.OPENAI_PROJECT_ID),
+    ANALYTICS_PROVIDER:      cleanEnvValue(process.env.ANALYTICS_PROVIDER),
+    ANALYTICS_ID:            cleanEnvValue(process.env.ANALYTICS_ID),
+    NEXTAUTH_SECRET:         cleanEnvValue(process.env.NEXTAUTH_SECRET),
+    NEXTAUTH_URL:            cleanEnvValue(process.env.NEXTAUTH_URL),
+    STRIPE_SECRET_KEY:       cleanEnvValue(process.env.STRIPE_SECRET_KEY),
+    STRIPE_WEBHOOK_SECRET:   cleanEnvValue(process.env.STRIPE_WEBHOOK_SECRET),
+    RESEND_API_KEY:          cleanEnvValue(process.env.RESEND_API_KEY),
+    RESEND_FROM_EMAIL:       cleanEnvValue(process.env.RESEND_FROM_EMAIL),
   }
 
-  // Also update process.env for DATABASE_URL and NEXT_PUBLIC_SITE_URL if they had quotes,
-  // so downstream consumers like PrismaClient get the clean connection string.
-  if (cleaned.DATABASE_URL && cleaned.DATABASE_URL !== process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = cleaned.DATABASE_URL
-  }
-  if (cleaned.NEXT_PUBLIC_SITE_URL && cleaned.NEXT_PUBLIC_SITE_URL !== process.env.NEXT_PUBLIC_SITE_URL) {
-    process.env.NEXT_PUBLIC_SITE_URL = cleaned.NEXT_PUBLIC_SITE_URL
-  }
+  // Write clean values back so downstream consumers (e.g. PrismaClient) get
+  // the stripped connection string without surrounding quotes.
+  if (cleaned.DATABASE_URL)         process.env.DATABASE_URL = cleaned.DATABASE_URL
+  if (cleaned.NEXT_PUBLIC_SITE_URL) process.env.NEXT_PUBLIC_SITE_URL = cleaned.NEXT_PUBLIC_SITE_URL
 
   const result = envSchema.safeParse(cleaned)
 
@@ -78,8 +92,7 @@ function validateEnv() {
     const formatted = Object.entries(errors)
       .map(([key, messages]) => `  ${key}: ${messages?.join(', ')}`)
       .join('\n')
-
-    // Warn rather than crashing page collection during build time
+    // Warn — env vars are optional at build time on Vercel; runtime validation catches real gaps
     console.warn(`\n[TAFM] Environment configuration warning:\n${formatted}\n`)
     return envSchema.parse(cleaned)
   }
