@@ -52,28 +52,28 @@ describe('Finance Journey Integration', () => {
     // Transition: DRAFT -> QUALIFYING
     let transition = validateTransition(currentStatus, 'QUALIFYING')
     expect(transition.success).toBe(true)
-    const entry1 = buildStatusHistoryEntry(currentStatus, 'QUALIFYING', 'SYSTEM', 'Finance application submitted')
+    const entry1 = buildStatusHistoryEntry(currentStatus, 'QUALIFYING', { actorType: 'SYSTEM', reason: 'Finance application submitted' })
     expect(entry1.to).toBe('QUALIFYING')
     currentStatus = 'QUALIFYING'
 
     // Transition: QUALIFYING -> MATCHED
     transition = validateTransition(currentStatus, 'MATCHED')
     expect(transition.success).toBe(true)
-    const entry2 = buildStatusHistoryEntry(currentStatus, 'MATCHED', 'SYSTEM', 'Matched to eligible provider')
+    const entry2 = buildStatusHistoryEntry(currentStatus, 'MATCHED', { actorType: 'SYSTEM', reason: 'Matched to eligible provider' })
     expect(entry2.to).toBe('MATCHED')
     currentStatus = 'MATCHED'
 
     // Transition: MATCHED -> READY_TO_SUBMIT (Phase 4 intermediate gate)
     transition = validateTransition(currentStatus, 'READY_TO_SUBMIT')
     expect(transition.success).toBe(true)
-    const entry3 = buildStatusHistoryEntry(currentStatus, 'READY_TO_SUBMIT', 'USER', 'Documentation and terms confirmed')
+    const entry3 = buildStatusHistoryEntry(currentStatus, 'READY_TO_SUBMIT', { actorType: 'USER', reason: 'Documentation and terms confirmed' })
     expect(entry3.to).toBe('READY_TO_SUBMIT')
     currentStatus = 'READY_TO_SUBMIT'
 
     // Transition: READY_TO_SUBMIT -> SUBMITTED
     transition = validateTransition(currentStatus, 'SUBMITTED')
     expect(transition.success).toBe(true)
-    const entry4 = buildStatusHistoryEntry(currentStatus, 'SUBMITTED', 'USER', 'Submitted to provider portal')
+    const entry4 = buildStatusHistoryEntry(currentStatus, 'SUBMITTED', { actorType: 'USER', reason: 'Submitted to provider portal' })
     expect(entry4.to).toBe('SUBMITTED')
     currentStatus = 'SUBMITTED'
 

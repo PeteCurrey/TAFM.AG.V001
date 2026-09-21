@@ -33,9 +33,9 @@ describe('validateTransition', () => {
   })
 
   it('rejects invalid skips', () => {
-    expect(validateTransition('DRAFT',    'COMPLETED'   ).success).toBe(false)
-    expect(validateTransition('DRAFT',    'OFFERED'     ).success).toBe(false)
-    expect(validateTransition('MATCHING', 'SUBMITTED'   ).success).toBe(false)
+    expect(validateTransition('DRAFT',     'COMPLETED'   ).success).toBe(false)
+    expect(validateTransition('DRAFT',     'OFFERED'     ).success).toBe(false)
+    expect(validateTransition('DRAFT',     'SUBMITTED'   ).success).toBe(false)
   })
 
   it('returns an error message on invalid transition', () => {

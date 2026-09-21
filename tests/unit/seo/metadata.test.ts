@@ -64,7 +64,8 @@ describe('SEO Metadata', () => {
         description: 'Desc',
         twitterCard: 'summary',
       })
-      expect(meta.twitter?.card).toBe('summary')
+      // Cast to any — Next.js Twitter type union changed; value is still set correctly at runtime
+      expect((meta.twitter as any)?.card).toBe('summary')
     })
 
     it('defaults twitter card to summary_large_image', () => {
@@ -72,7 +73,7 @@ describe('SEO Metadata', () => {
         title: 'Test',
         description: 'Desc',
       })
-      expect(meta.twitter?.card).toBe('summary_large_image')
+      expect((meta.twitter as any)?.card).toBe('summary_large_image')
     })
   })
 

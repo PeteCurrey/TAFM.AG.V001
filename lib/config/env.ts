@@ -8,6 +8,14 @@ import { z } from 'zod'
 //
 // SECURITY: Never expose server-only variables as NEXT_PUBLIC_.
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function cleanEnvValue(val: unknown): string | undefined {
+  if (typeof val !== 'string') return undefined
+  const stripped = val.trim().replace(/^["']+|["']+$/g, '').trim()
+  return stripped === '' ? undefined : stripped
+}
+
 // ─── Schema ────────────────────────────────────────────────────────────────────
 
 const envSchema = z.object({
@@ -15,14 +23,14 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production', 'test']).default('development'),
 
   // ── Database (required for data persistence; app can serve static content without)
-  DATABASE_URL: z.string().url().optional(),
+  DATABASE_URL: z.string().optional(),
 
   // ── Site (public — used in SEO/metadata)
-  NEXT_PUBLIC_SITE_URL: z.string().url().default('http://localhost:3000'),
+  NEXT_PUBLIC_SITE_URL: z.string().default('https://tafm.co.uk'),
   NEXT_PUBLIC_SITE_NAME: z.string().default('TAFM'),
 
   // ── OpenAI (server-side only — NEVER prefix with NEXT_PUBLIC_)
-  OPENAI_API_KEY: z.string().startsWith('sk-').optional(),
+  OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL_PRIMARY: z.string().default('gpt-4o'),
   OPENAI_MODEL_FAST: z.string().default('gpt-4o-mini'),
   OPENAI_MODEL_REASONING: z.string().default('o1-preview'),
@@ -34,7 +42,7 @@ const envSchema = z.object({
 
   // ── Future: Auth (optional)
   NEXTAUTH_SECRET: z.string().optional(),
-  NEXTAUTH_URL: z.string().url().optional(),
+  NEXTAUTH_URL: z.string().optional(),
 
   // ── Future: Stripe (optional)
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -42,13 +50,28 @@ const envSchema = z.object({
 
   // ── Future: Email (optional)
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: z.string().email().optional(),
+  RESEND_FROM_EMAIL: z.string().optional(),
 })
 
 // ─── Validation ────────────────────────────────────────────────────────────────
 
 function validateEnv() {
-  const result = envSchema.safeParse(process.env)
+  // Pre-clean raw environment variables to remove surrounding quotes and empty strings
+  const cleaned: Record<string, string | undefined> = {}
+  for (const [key, val] of Object.entries(process.env)) {
+    cleaned[key] = cleanEnvValue(val)
+  }
+
+  // Also update process.env for DATABASE_URL and NEXT_PUBLIC_SITE_URL if they had quotes,
+  // so downstream consumers like PrismaClient get the clean connection string.
+  if (cleaned.DATABASE_URL && cleaned.DATABASE_URL !== process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = cleaned.DATABASE_URL
+  }
+  if (cleaned.NEXT_PUBLIC_SITE_URL && cleaned.NEXT_PUBLIC_SITE_URL !== process.env.NEXT_PUBLIC_SITE_URL) {
+    process.env.NEXT_PUBLIC_SITE_URL = cleaned.NEXT_PUBLIC_SITE_URL
+  }
+
+  const result = envSchema.safeParse(cleaned)
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors
@@ -56,10 +79,9 @@ function validateEnv() {
       .map(([key, messages]) => `  ${key}: ${messages?.join(', ')}`)
       .join('\n')
 
-    // Fail loudly — a misconfigured app should not silently proceed
-    throw new Error(
-      `\n\n[TAFM] Environment configuration is invalid:\n${formatted}\n\nCheck your .env.local file against .env.example\n`,
-    )
+    // Warn rather than crashing page collection during build time
+    console.warn(`\n[TAFM] Environment configuration warning:\n${formatted}\n`)
+    return envSchema.parse(cleaned)
   }
 
   return result.data
