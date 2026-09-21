@@ -80,10 +80,12 @@ function validateEnv() {
     RESEND_FROM_EMAIL:       cleanEnvValue(process.env.RESEND_FROM_EMAIL),
   }
 
-  // Write clean values back so downstream consumers (e.g. PrismaClient) get
-  // the stripped connection string without surrounding quotes.
-  if (cleaned.DATABASE_URL)         process.env.DATABASE_URL = cleaned.DATABASE_URL
-  if (cleaned.NEXT_PUBLIC_SITE_URL) process.env.NEXT_PUBLIC_SITE_URL = cleaned.NEXT_PUBLIC_SITE_URL
+  // NOTE: Do NOT write back to process.env here.
+  // - NEXT_PUBLIC_* assignments: webpack's DefinePlugin replaces the LValue with the
+  //   literal string at build time, producing "\"http://...\"" = value → invalid syntax
+  //   → SWC minifier crash.
+  // - DATABASE_URL stripping is handled in lib/db/client.ts before PrismaClient is created.
+  // - NEXT_PUBLIC_SITE_URL stripping is handled by getSiteUrl() in lib/utils.ts.
 
   const result = envSchema.safeParse(cleaned)
 

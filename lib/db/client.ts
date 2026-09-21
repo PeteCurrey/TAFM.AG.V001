@@ -12,6 +12,16 @@ declare global {
 }
 
 function createPrismaClient(): PrismaClient {
+  // Strip surrounding quotes from DATABASE_URL — Vercel can store the literal
+  // quoted string if the env var was copy-pasted with quotes from a .env file.
+  // Must be done here (not in env.ts) to avoid webpack's DefinePlugin turning
+  // NEXT_PUBLIC_ LValue assignments into invalid syntax at build time.
+  const rawDbUrl = process.env.DATABASE_URL
+  if (rawDbUrl) {
+    const clean = rawDbUrl.trim().replace(/^["']+|["']+$/g, '').trim()
+    if (clean !== rawDbUrl) process.env.DATABASE_URL = clean
+  }
+
   return new PrismaClient({
     log:
       process.env.NODE_ENV === 'development'
