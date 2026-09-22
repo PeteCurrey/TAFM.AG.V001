@@ -7,6 +7,11 @@
 // Future: route to email (Resend), SMS, push, or webhook based on event type.
 
 import { logger } from '@/lib/logging'
+import {
+  buildOpportunityCreatedEmail,
+  buildProviderMatchEmail,
+  sendEmail,
+} from './email'
 
 // ─── Event type definitions ───────────────────────────────────────────────────
 
@@ -78,9 +83,16 @@ export async function emitEvent<T extends NotificationEventType>(
       actorId: opts?.actorId,
     }, 'app')
 
-    // TODO: when RESEND_API_KEY is configured, route email events here
-    // TODO: when webhook endpoints are registered, dispatch to providers
-    // TODO: persist to a notifications/events table for in-app notification centre
+    // Controlled email dispatch
+    if (type === 'FINANCE_REQUEST_CREATED') {
+      const p = payload as NotificationPayloadMap['FINANCE_REQUEST_CREATED']
+      const email = buildOpportunityCreatedEmail(p.opportunityId, p.businessId)
+      await sendEmail(email)
+    } else if (type === 'POTENTIAL_MATCH_FOUND') {
+      const p = payload as NotificationPayloadMap['POTENTIAL_MATCH_FOUND']
+      const email = buildProviderMatchEmail('Approved Provider Network', p.opportunityId)
+      await sendEmail(email)
+    }
 
   } catch (err) {
     // Non-fatal — log and continue

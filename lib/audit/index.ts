@@ -37,6 +37,9 @@ export type AuditEntityType =
   | 'DataSource'
   | 'ImportJob'
   | 'Resource'
+  | 'OpportunityProvider'
+  | 'ProviderMembership'
+  | 'OrganisationMembership'
 
 export type AuditActionType =
   | 'CREATE'

@@ -28,6 +28,12 @@ export function toSlug(raw: string): string {
     .replace(/^-|-$/g, '')           // trim leading/trailing hyphens
 }
 
+export function normaliseManufacturerName(name: string): { canonical: string; slug: string } {
+  const canonical = name.trim()
+  const slug = toSlug(canonical)
+  return { canonical, slug }
+}
+
 // ─── Manufacturer resolution ──────────────────────────────────────────────────
 
 export interface ManufacturerResolution {

@@ -13,6 +13,7 @@ datasource db {
 
 enum UserRole {
   BUSINESS
+  PROVIDER
   SUPPLIER
   LENDER
   ADMIN
@@ -129,10 +130,14 @@ enum SupplierStatus {
 }
 
 enum LenderStatus {
+  APPLIED
+  UNDER_REVIEW
+  VERIFIED
   ACTIVE
   INACTIVE
   PENDING_ONBOARDING
   SUSPENDED
+  REJECTED
 }
 
 enum AIJobType {
@@ -322,6 +327,9 @@ model User {
   applications FinanceApplication[]
   auditLogs    AuditLog[]
   events       Event[]
+  organisations OrganisationMembership[]
+  providerMemberships ProviderMembership[]
+  sessions     Session[]
 
   @@index([email])
   @@index([businessId])
@@ -353,7 +361,9 @@ model Business {
   deletedAt    DateTime?
 
   users        User[]
+  memberships  OrganisationMembership[]
   applications FinanceApplication[]
+  opportunities Opportunity[]
 
   @@index([ownerId])
   @@map("businesses")
@@ -464,6 +474,7 @@ model Asset {
   supplier     Supplier?      @relation(fields: [supplierId], references: [id])
   applications FinanceApplication[]
   valuations   AssetValuation[]
+  opportunities Opportunity[]
 
   @@index([categoryId])
   @@index([supplierId])
@@ -563,6 +574,14 @@ model Lender {
   providerApplicationId   String?      // back-ref to the ProviderApplication that created this record
   isPubliclyListed        Boolean      @default(false) // controlled — not auto-listed
   notes                   String?
+  // Phase 5 verification checklist
+  companyVerified         Boolean      @default(false)
+  websiteVerified         Boolean      @default(false)
+  contactVerified         Boolean      @default(false)
+  productsVerified        Boolean      @default(false)
+  criteriaVerified        Boolean      @default(false)
+  profileApproved         Boolean      @default(false)
+  verifiedById            String?
   createdAt               DateTime     @default(now())
   updatedAt               DateTime     @updatedAt
   deletedAt               DateTime?
@@ -571,6 +590,8 @@ model Lender {
   offers              FinanceOffer[]
   criteria            ProviderCriteria?
   criteriaVersions    ProviderCriteriaVersion[]
+  memberships         ProviderMembership[]
+  opportunityMatches  OpportunityProvider[]
 
   @@index([status])
   @@index([verificationStatus])
@@ -634,11 +655,12 @@ model FinanceApplication {
   updatedAt              DateTime          @updatedAt
   deletedAt              DateTime?
 
-  user      User                  @relation(fields: [userId], references: [id])
-  business  Business?             @relation(fields: [businessId], references: [id])
-  asset     Asset?                @relation(fields: [assetId], references: [id])
-  offers    FinanceOffer[]
-  documents ApplicationDocument[]
+  user          User                  @relation(fields: [userId], references: [id])
+  business      Business?             @relation(fields: [businessId], references: [id])
+  asset         Asset?                @relation(fields: [assetId], references: [id])
+  offers        FinanceOffer[]
+  documents     ApplicationDocument[]
+  opportunities Opportunity[]
 
   @@index([userId])
   @@index([status])
@@ -855,6 +877,11 @@ model Opportunity {
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   deletedAt           DateTime?
+
+  business            Business?         @relation(fields: [businessId], references: [id])
+  application         FinanceApplication? @relation(fields: [applicationId], references: [id])
+  asset               Asset?            @relation(fields: [assetId], references: [id])
+  providerMatches     OpportunityProvider[]
 
   @@index([businessId])
   @@index([status])
@@ -1126,6 +1153,7 @@ model ProviderCriteriaVersion {
   createdAt     DateTime  @default(now())
 
   lender Lender @relation(fields: [lenderId], references: [id])
+  opportunityMatches OpportunityProvider[]
 
   @@index([lenderId])
   @@index([isActive])
@@ -1165,4 +1193,104 @@ model Resource {
   @@index([status])
   @@index([isIndexable])
   @@map("resources")
+}
+
+// ─── Organisation memberships (Phase 5) ───────────────────────────────────────
+//
+// Links a user to a business organisation with a specific role.
+// Supports multi-user businesses (Directors, Finance contacts, Staff).
+
+model OrganisationMembership {
+  id         String   @id @default(cuid())
+  userId     String
+  businessId String
+  role       String   @default("MEMBER") // OWNER | ADMIN | FINANCE_CONTACT | MEMBER
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+  @@map("organisation_memberships")
+}
+
+// ─── Provider memberships (Phase 5) ───────────────────────────────────────────
+//
+// Links a provider employee/user to a provider organisation (Lender).
+// Enforces strict isolation so provider users only see their organisation's data.
+
+model ProviderMembership {
+  id        String   @id @default(cuid())
+  userId    String
+  lenderId  String
+  role      String   @default("MEMBER") // OWNER | ADMIN | UNDERWRITER | MEMBER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lender    Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lenderId])
+  @@index([userId])
+  @@index([lenderId])
+  @@map("provider_memberships")
+}
+
+// ─── Opportunity Provider / Match (Phase 5) ──────────────────────────────────
+//
+// Explicit join model connecting an Opportunity to potential Providers.
+// Captures the criteria version used at match time, deterministic eligibility
+// evaluation, provider interaction status, and responses.
+
+model OpportunityProvider {
+  id                 String                  @id @default(cuid())
+  opportunityId      String
+  lenderId           String
+  criteriaVersionId  String?
+  eligibilityResult  Json                    // full EligibilityResult snapshot
+  matchStatus        String                  @default("MATCHED") // MATCHED | REVIEWING | INFORMATION_REQUESTED | INTERESTED | DECLINED | SUBMITTED_TO_CREDIT | OFFERED | COMPLETED
+  providerResponse   Json?                   // provider's recorded response (notes, terms, conditions, reasons)
+  viewedAt           DateTime?
+  respondedAt        DateTime?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  opportunity        Opportunity             @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  lender             Lender                  @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+  criteriaVersion    ProviderCriteriaVersion? @relation(fields: [criteriaVersionId], references: [id])
+
+  @@unique([opportunityId, lenderId])
+  @@index([opportunityId])
+  @@index([lenderId])
+  @@index([matchStatus])
+  @@map("opportunity_providers")
+}
+
+// ─── Auth & Sessions (Phase 5) ────────────────────────────────────────────────
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }

@@ -1,10 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
+import { requireAdmin } from '@/lib/auth/context'
 
-// ─── Admin layout ──────────────────────────────────────────────────────────────
+// ─── Admin layout (Phase 5) ──────────────────────────────────────────────────
 //
-// Shell for the admin area. Protected in Phase 4 when auth is wired.
-// Phase 3: renders with a visible AUTH_PENDING state — never silently accessible.
+// Protected server-side authoritative layout.
+// Only accessible to authenticated users with ADMIN or SUPER_ADMIN role.
 
 const NAV: Array<{ href: string; label: string } | { divider: true; label: string }> = [
   // Core pipeline
@@ -17,6 +18,7 @@ const NAV: Array<{ href: string; label: string } | { divider: true; label: strin
   { href: '/admin/provider-applications',  label: 'Applications' },
   // Divider: Data
   { divider: true,                         label: 'Data' },
+  { href: '/admin/import',                 label: 'CSV Import' },
   { href: '/admin/manufacturers',          label: 'Manufacturers' },
   { href: '/admin/market-data',            label: 'Market data' },
   { href: '/admin/data-quality',           label: 'Data quality' },
@@ -29,30 +31,52 @@ const NAV: Array<{ href: string; label: string } | { divider: true; label: strin
   { href: '/admin/audit-log',             label: 'Audit log' },
 ]
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const adminUser = await requireAdmin()
+
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col">
-      {/* Admin auth notice */}
-      <div className="bg-amber-950/60 border-b border-amber-900/40 px-4 py-2 flex items-center gap-3">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-        <p className="text-xs text-amber-300">
-          <strong className="font-medium">Admin area</strong> — Authentication not yet wired to session provider.
-          Access control is in progress.
-        </p>
+    <div className="min-h-screen bg-[#050505] flex flex-col text-white">
+      {/* Admin top status bar */}
+      <div className="bg-[#111111] border-b border-[var(--color-border-dark)] px-6 py-2.5 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-3">
+          <span className="w-2 h-2 rounded-full bg-[#FF6A1A] animate-pulse" />
+          <span className="font-mono text-[11px] text-[var(--color-text-on-dark-2)] uppercase tracking-wider">
+            ADMIN CONSOLE &middot; {adminUser.email}
+          </span>
+          <span className="px-1.5 py-0.5 bg-orange-950/60 border border-orange-800/60 text-[#FF6A1A] text-[10px] uppercase font-mono">
+            {adminUser.role}
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-[var(--color-text-on-dark-muted)] hover:text-white transition-colors"
+          >
+            Public site &rarr;
+          </Link>
+          <a
+            href="/sign-out"
+            className="text-[var(--color-text-on-dark-muted)] hover:text-red-400 transition-colors"
+          >
+            Sign out
+          </a>
+        </div>
       </div>
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <aside className="w-56 border-r border-border flex-shrink-0 flex flex-col">
-          <div className="px-4 py-5 border-b border-border">
-            <p className="text-xs text-text-tertiary uppercase tracking-widest">TAFM Admin</p>
+        <aside className="w-56 border-r border-[var(--color-border-dark)] flex-shrink-0 flex flex-col bg-[#080808]">
+          <div className="px-4 py-5 border-b border-[var(--color-border-dark)]">
+            <p className="text-[10px] text-[var(--color-text-on-dark-muted)] uppercase tracking-widest font-mono">
+              TAFM Administration
+            </p>
           </div>
-          <nav className="flex-1 py-3 overflow-y-auto">
+          <nav className="flex-1 py-3 overflow-y-auto space-y-0.5">
             {NAV.map((item, i) => {
               if ('divider' in item) {
                 return (
                   <div key={`divider-${i}`} className="px-4 pt-4 pb-1">
-                    <p className="text-[10px] text-text-tertiary uppercase tracking-widest opacity-50">
+                    <p className="text-[9px] text-[var(--color-text-on-dark-muted)] uppercase tracking-widest opacity-60 font-mono">
                       {item.label}
                     </p>
                   </div>
@@ -62,22 +86,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center px-4 py-2 text-sm text-text-secondary hover:text-text-primary hover:bg-white/[0.03] transition-colors"
+                  className="flex items-center px-4 py-2 text-xs text-[var(--color-text-on-dark-2)] hover:text-white hover:bg-white/[0.04] transition-colors"
                 >
                   {item.label}
                 </Link>
               )
             })}
           </nav>
-          <div className="px-4 py-4 border-t border-border">
-            <Link href="/" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors">
-              ← Back to site
-            </Link>
+          <div className="px-4 py-4 border-t border-[var(--color-border-dark)]">
+            <p className="text-[10px] text-[var(--color-text-on-dark-muted)]">
+              Authoritative Server Security
+            </p>
           </div>
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-[#0a0a0a]">
           {children}
         </main>
       </div>
