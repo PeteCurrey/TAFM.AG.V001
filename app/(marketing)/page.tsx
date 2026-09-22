@@ -101,12 +101,13 @@ export default function HomePage() {
         {/* Hero photographic background */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <Image
-            src="/images/hero-cherry-picker.jpg"
-            alt="Truck-mounted cherry picker with asset finance specialist"
+            src="/images/hero-bg.jpg"
+            alt="Ruthmann STEIGER T 650 HF truck-mounted aerial platform — TAFM asset finance"
             fill
             priority
-            quality={92}
-            className="object-cover object-[center_right] lg:object-right filter brightness-[0.92] contrast-[1.04]"
+            quality={95}
+            sizes="100vw"
+            className="object-cover object-center lg:object-[center_right]"
           />
           {/* Directional scrim: darkens the left side where headline/CTAs sit while leaving the truck & character clear */}
           <div
