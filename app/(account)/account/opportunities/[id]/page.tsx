@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db/client'
 import { requireBusinessMembership } from '@/lib/auth/context'
+import { BorrowerInformationRequestCard } from '@/components/account/BorrowerInformationRequestCard'
 
 export default async function AccountOpportunityDetailPage({
   params,
@@ -31,6 +32,9 @@ export default async function AccountOpportunityDetailPage({
       },
       application: true,
       providerMatches: true,
+      informationRequests: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
   })
 
@@ -112,6 +116,18 @@ export default async function AccountOpportunityDetailPage({
             </div>
           </div>
         </div>
+
+        {/* Information Requests Loop */}
+        {opp.informationRequests && opp.informationRequests.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-xs font-mono uppercase tracking-wider text-amber-400">
+              Underwriting Information Requests ({opp.informationRequests.length})
+            </h2>
+            {opp.informationRequests.map((req) => (
+              <BorrowerInformationRequestCard key={req.id} request={req} />
+            ))}
+          </div>
+        )}
 
         {/* Asset & Requirement Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

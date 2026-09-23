@@ -148,3 +148,28 @@ export const auditService = {
     })
   },
 }
+
+export async function auditLog(params: {
+  actorId?: string
+  actorType?: 'USER' | 'SYSTEM' | 'AI'
+  action: AuditActionType
+  entityType?: AuditEntityType | string
+  entity?: AuditEntityType
+  entityId: string
+  metadata?: Record<string, unknown>
+  before?: Record<string, unknown>
+  after?: Record<string, unknown>
+  reason?: string
+}): Promise<void> {
+  const entity = (params.entity || params.entityType || 'Opportunity') as AuditEntityType
+  await auditService.log({
+    entity,
+    entityId: params.entityId,
+    action: params.action,
+    actorId: params.actorId,
+    actorType: params.actorType,
+    before: params.before,
+    after: params.after || params.metadata,
+    reason: params.reason,
+  })
+}

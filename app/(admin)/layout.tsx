@@ -18,6 +18,8 @@ const NAV: Array<{ href: string; label: string } | { divider: true; label: strin
   { href: '/admin/provider-applications',  label: 'Applications' },
   // Divider: Data
   { divider: true,                         label: 'Data' },
+  { href: '/admin/data-readiness',         label: 'Data readiness' },
+  { href: '/admin/entity-resolution',      label: 'Entity resolution' },
   { href: '/admin/import',                 label: 'CSV Import' },
   { href: '/admin/manufacturers',          label: 'Manufacturers' },
   { href: '/admin/market-data',            label: 'Market data' },

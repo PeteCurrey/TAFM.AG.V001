@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { db } from '@/lib/db/client'
 import { requireProviderMembership } from '@/lib/auth/context'
 import { ProviderResponseActions } from '@/components/provider/ProviderResponseActions'
+import { ProviderInformationRequestManager } from '@/components/provider/ProviderInformationRequestManager'
 
 export default async function ProviderOpportunityDetailPage({
   params,
@@ -52,6 +53,14 @@ export default async function ProviderOpportunityDetailPage({
   const biz = opp.business
   const evalResult = match.eligibilityResult as Record<string, unknown>
   const factors = (evalResult?.factors as Array<{ field: string; label: string; status: string; reason: string }>) || []
+
+  const infoRequests = await db.informationRequest.findMany({
+    where: {
+      opportunityId,
+      lenderId,
+    },
+    orderBy: { createdAt: 'desc' },
+  }).catch(() => [])
 
   return (
     <div className="p-8 max-w-5xl">
@@ -221,6 +230,12 @@ export default async function ProviderOpportunityDetailPage({
               ))}
             </div>
           </div>
+
+          {/* Due Diligence / Information Requests */}
+          <ProviderInformationRequestManager
+            opportunityId={opp.id}
+            requests={infoRequests}
+          />
 
           {/* Action Box */}
           <ProviderResponseActions

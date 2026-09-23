@@ -1,58 +1,22 @@
 import React from 'react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getOpportunityMatchingDiagnostics } from '@/lib/matching/diagnostics'
 import { db } from '@/lib/db/client'
-import { availableTransitions } from '@/lib/matching/opportunity'
-import type { OpportunityStatus } from '@/lib/matching/opportunity'
 
-// ─── Opportunity workspace ─────────────────────────────────────────────────────
-
-async function getOpportunity(id: string) {
-  if (!db) return null
-  try {
-    return await db.opportunity.findUnique({
-      where: { id },
-    })
-  } catch { return null }
-}
+export const dynamic = 'force-dynamic'
 
 async function getAuditHistory(entityId: string) {
   if (!db) return []
   try {
     return await db.auditLog.findMany({
-      where:   { entityType: 'Opportunity', entityId },
+      where: { entityType: 'Opportunity', entityId },
       orderBy: { createdAt: 'desc' },
-      take:    50,
+      take: 25,
     })
-  } catch { return [] }
-}
-
-async function getAIResults(entityId: string) {
-  if (!db) return []
-  try {
-    return await db.aIIntelligenceResult.findMany({
-      where:   { entityId },
-      orderBy: { createdAt: 'desc' },
-      take:    10,
-    })
-  } catch { return [] }
-}
-
-const PANEL_HEADER = 'px-5 py-3 border-b border-border bg-surface-2 text-[10px] text-text-tertiary uppercase tracking-wider'
-const PANEL = 'border border-border rounded-sm overflow-hidden'
-const ROW = 'grid grid-cols-[160px_1fr] gap-3 px-5 py-2.5 border-b border-border last:border-0'
-const LABEL = 'text-xs text-text-secondary'
-const VALUE = 'text-xs text-text-primary'
-
-const STATUS_STYLES: Record<string, { dot: string; text: string }> = {
-  DRAFT:        { dot: 'bg-neutral-500',  text: 'text-neutral-400' },
-  QUALIFYING:   { dot: 'bg-blue-400',     text: 'text-blue-400' },
-  MATCHED:      { dot: 'bg-indigo-400',   text: 'text-indigo-400' },
-  SUBMITTED:    { dot: 'bg-orange-400',   text: 'text-orange-400' },
-  UNDER_REVIEW: { dot: 'bg-amber-400',    text: 'text-amber-400' },
-  OFFERED:      { dot: 'bg-emerald-400',  text: 'text-emerald-400' },
-  COMPLETED:    { dot: 'bg-emerald-500',  text: 'text-emerald-500' },
-  DECLINED:     { dot: 'bg-red-500',      text: 'text-red-400' },
-  WITHDRAWN:    { dot: 'bg-neutral-600',  text: 'text-neutral-500' },
+  } catch {
+    return []
+  }
 }
 
 export default async function OpportunityDetailPage({
@@ -61,229 +25,305 @@ export default async function OpportunityDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const [opp, auditLogs, aiResults] = await Promise.all([
-    getOpportunity(id),
+  const [report, auditLogs] = await Promise.all([
+    getOpportunityMatchingDiagnostics(id),
     getAuditHistory(id),
-    getAIResults(id),
   ])
 
-  if (!opp) notFound()
-
-  const statusStyle  = STATUS_STYLES[opp.status] ?? STATUS_STYLES.DRAFT
-  const transitions  = availableTransitions(opp.status as OpportunityStatus)
-  const statusHistory = Array.isArray(opp.statusHistory) ? opp.statusHistory as unknown[] : []
-  const qualityScore = opp.dataQualityScore ? Math.round(Number(opp.dataQualityScore) * 100) : null
+  if (!report) notFound()
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-xs font-mono text-[var(--color-text-on-dark-muted)]">
+        <Link href="/admin/opportunities" className="hover:text-white">
+          Opportunities
+        </Link>
+        <span>/</span>
+        <span className="text-white">{report.reference}</span>
+      </div>
+
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
-          <p className="text-xs text-text-tertiary mb-1 font-mono">{opp.reference}</p>
-          <h1 className="text-2xl font-extralight text-text-primary mb-1">Opportunity workspace</h1>
-          <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${statusStyle.dot}`} />
-            <span className={`text-sm font-medium ${statusStyle.text}`}>{opp.status}</span>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-light tracking-tight text-white">
+              Opportunity Operational Control Centre
+            </h1>
+            <span className="px-2.5 py-1 text-xs font-mono uppercase tracking-wider rounded bg-indigo-950/80 text-indigo-300 border border-indigo-700/60">
+              {report.status}
+            </span>
+          </div>
+          <p className="text-xs text-[var(--color-text-on-dark-muted)] mt-1.5 font-mono">
+            Ref: {report.reference} &middot; Ingested {new Date(report.createdAt).toLocaleString('en-GB')}
+          </p>
+        </div>
+      </div>
+
+      {/* Commercial Entity Triad (Business, Asset, Application) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Business */}
+        <div className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <span className="text-xs font-mono uppercase tracking-wider text-[#FF6A1A]">
+              1. Business Profile
+            </span>
+            <span className="text-[10px] font-mono text-[var(--color-text-on-dark-muted)]">
+              {report.business?.structure?.replace('_', ' ') ?? 'Entity'}
+            </span>
+          </div>
+          <div className="space-y-1.5 text-xs">
+            <p className="text-sm font-medium text-white">{report.business?.name ?? '—'}</p>
+            <p className="text-[var(--color-text-on-dark-muted)] font-mono">
+              Co. No: {report.business?.companyNumber ?? 'Unverified'}
+            </p>
+            <div className="pt-2 text-[var(--color-text-on-dark-2)] space-y-1">
+              <div className="flex justify-between">
+                <span>Trading History:</span>
+                <span className="text-white font-mono">{report.business?.yearsTrading ?? '—'} yrs</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Annual Turnover:</span>
+                <span className="text-white font-mono">
+                  £{report.business?.annualTurnover?.toLocaleString('en-GB') ?? '—'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Status transitions */}
-        {transitions.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-text-tertiary">Advance to:</span>
-            {transitions.map((t) => {
-              const ts = STATUS_STYLES[t] ?? STATUS_STYLES.DRAFT
-              return (
-                <button
-                  key={t}
-                  disabled
-                  title="Status transitions require authentication (Phase 4)"
-                  className="flex items-center gap-1.5 px-3 py-1.5 border border-border rounded-sm text-xs text-text-secondary hover:border-text-tertiary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        {/* Asset */}
+        <div className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <span className="text-xs font-mono uppercase tracking-wider text-[#FF6A1A]">
+              2. Collateral Asset
+            </span>
+            <span className="text-[10px] font-mono text-emerald-400">
+              {report.asset?.status ?? 'ACTIVE'}
+            </span>
+          </div>
+          <div className="space-y-1.5 text-xs">
+            <p className="text-sm font-medium text-white">{report.asset?.name ?? '—'}</p>
+            <p className="text-[var(--color-text-on-dark-muted)] font-mono">
+              {report.asset?.manufacturer} &middot; {report.asset?.category}
+            </p>
+            <div className="pt-2 text-[var(--color-text-on-dark-2)] space-y-1">
+              <div className="flex justify-between">
+                <span>Year:</span>
+                <span className="text-white font-mono">{report.asset?.year ?? '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Declared Value:</span>
+                <span className="text-white font-mono">
+                  £{report.asset?.value?.toLocaleString('en-GB') ?? '—'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Facility Requirement */}
+        <div className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-white/5">
+            <span className="text-xs font-mono uppercase tracking-wider text-[#FF6A1A]">
+              3. Finance Facility
+            </span>
+            <span className="text-[10px] font-mono text-blue-400">
+              {report.application?.structure?.replace('_', ' ') ?? 'Standard'}
+            </span>
+          </div>
+          <div className="space-y-1.5 text-xs">
+            <p className="text-lg font-mono text-white font-light">
+              £{report.application?.requestedAmount?.toLocaleString('en-GB') ?? '—'}
+            </p>
+            <div className="pt-2 text-[var(--color-text-on-dark-2)] space-y-1">
+              <div className="flex justify-between">
+                <span>Requested Term:</span>
+                <span className="text-white font-mono">{report.application?.termMonths ?? '—'} months</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Proposed Deposit:</span>
+                <span className="text-white font-mono">
+                  £{report.application?.depositAmount?.toLocaleString('en-GB') ?? '0'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Deterministic Matching Diagnostics */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-white tracking-wide uppercase font-mono">
+            Deterministic Provider Matching Diagnostics
+          </h2>
+          <span className="text-xs font-mono text-[var(--color-text-on-dark-muted)]">
+            {report.matchedProviders.length} Matched &middot; {report.disqualifiedProviders.length} Disqualified
+          </span>
+        </div>
+
+        {/* Matched Providers */}
+        <div className="space-y-3">
+          {report.matchedProviders.map((match) => (
+            <div
+              key={match.lenderId}
+              className="bg-[#0D0D0D] border border-emerald-800/40 rounded-lg p-5 space-y-4"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="text-sm font-medium text-white">{match.lenderName}</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 bg-emerald-950/60 border border-emerald-700/60 text-emerald-300 rounded">
+                    Criteria v{match.criteriaVersion}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs font-mono">
+                  <span className="text-[var(--color-text-on-dark-muted)]">Provider Response:</span>
+                  <span className="text-emerald-400 uppercase font-medium">{match.matchStatus}</span>
+                </div>
+              </div>
+
+              {/* Factors Evaluated */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                {match.factors.map((f, idx) => (
+                  <div key={idx} className="p-2.5 bg-black/40 border border-white/5 rounded">
+                    <div className="text-[10px] uppercase font-mono text-[var(--color-text-on-dark-muted)]">
+                      {f.label}
+                    </div>
+                    <div
+                      className={`text-[11px] font-mono mt-1 ${
+                        f.status === 'ELIGIBLE' ? 'text-emerald-400' : 'text-amber-400'
+                      }`}
+                    >
+                      &check; {f.status}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Disqualified Providers */}
+          {report.disqualifiedProviders.length > 0 && (
+            <div className="pt-2 space-y-3">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--color-text-on-dark-muted)]">
+                Disqualified Lenders ({report.disqualifiedProviders.length})
+              </h3>
+              {report.disqualifiedProviders.map((disq) => (
+                <div
+                  key={disq.lenderId}
+                  className="bg-[#0A0A0A] border border-white/5 rounded p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${ts.dot}`} />
-                  {t}
-                </button>
-              )
-            })}
+                  <div>
+                    <span className="text-white font-medium">{disq.lenderName}</span>
+                    <p className="text-[var(--color-text-on-dark-muted)] text-[11px] mt-0.5 font-mono">
+                      Reason: {disq.blockers.join('; ') || 'Criteria appetite out of range'}
+                    </p>
+                  </div>
+                  <span className="px-2 py-0.5 bg-red-950/50 border border-red-800/40 text-red-400 text-[10px] font-mono rounded self-start sm:self-auto">
+                    DISQUALIFIED
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Underwriting Information Requests */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-white tracking-wide uppercase font-mono">
+            Underwriting Information Requests ({report.informationRequests.length})
+          </h2>
+        </div>
+
+        {report.informationRequests.length === 0 ? (
+          <div className="bg-[#0A0A0A] border border-white/10 rounded-lg p-6 text-xs text-[var(--color-text-on-dark-muted)] font-mono">
+            No information requests have been logged for this facility.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {report.informationRequests.map((req) => (
+              <div
+                key={req.id}
+                className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3 text-xs"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                  <span className="font-mono text-white">Issued by {req.lenderName}</span>
+                  <span
+                    className={`px-2 py-0.5 text-[10px] font-mono uppercase rounded ${
+                      req.status === 'RESPONDED'
+                        ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                        : 'bg-amber-950/80 text-amber-300 border border-amber-700/60'
+                    }`}
+                  >
+                    {req.status}
+                  </span>
+                </div>
+                <div className="text-[var(--color-text-on-dark-2)]">
+                  <span className="text-[10px] uppercase font-mono text-[var(--color-text-on-dark-muted)]">Request:</span>
+                  <p className="mt-0.5 text-white">{req.notes}</p>
+                </div>
+                {req.borrowerResponse && (
+                  <div className="bg-black/40 p-3 rounded border border-white/5 space-y-1">
+                    <span className="text-[10px] uppercase font-mono text-emerald-400">Borrower Response:</span>
+                    <p className="text-white">{req.borrowerResponse}</p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
-        {/* Left column */}
-        <div className="space-y-4">
-
-          {/* Core data */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Opportunity data</div>
-            <div className={ROW}><span className={LABEL}>ID</span><span className={`${VALUE} font-mono`}>{opp.id}</span></div>
-            <div className={ROW}><span className={LABEL}>Reference</span><span className={`${VALUE} font-mono`}>{opp.reference}</span></div>
-            <div className={ROW}><span className={LABEL}>Business ID</span><span className={`${VALUE} font-mono`}>{opp.businessId}</span></div>
-            <div className={ROW}><span className={LABEL}>Asset ID</span><span className={`${VALUE} font-mono`}>{opp.assetId ?? '—'}</span></div>
-            <div className={ROW}><span className={LABEL}>Application ID</span><span className={`${VALUE} font-mono`}>{opp.applicationId ?? '—'}</span></div>
-            <div className={ROW}><span className={LABEL}>Assigned to</span><span className={VALUE}>{opp.assignedToId ?? 'Unassigned'}</span></div>
-            <div className={ROW}><span className={LABEL}>Created</span><span className={VALUE}>{new Date(opp.createdAt).toLocaleString('en-GB')}</span></div>
-            <div className={ROW}><span className={LABEL}>Updated</span><span className={VALUE}>{new Date(opp.updatedAt).toLocaleString('en-GB')}</span></div>
-          </div>
-
-          {/* Match analysis */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Match analysis</div>
-            {opp.matchAnalysis ? (
-              <div className="px-5 py-4">
-                <pre className="text-xs text-text-secondary font-mono whitespace-pre-wrap">
-                  {JSON.stringify(opp.matchAnalysis, null, 2)}
-                </pre>
-              </div>
-            ) : (
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-tertiary">No match analysis yet. Run eligibility check to generate.</p>
-              </div>
-            )}
-          </div>
-
-          {/* Status history */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Status history ({statusHistory.length})</div>
-            {statusHistory.length === 0 ? (
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-tertiary">No status transitions recorded.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {(statusHistory as Array<Record<string, unknown>>).map((entry, i) => (
-                  <div key={i} className="px-5 py-3 flex items-center gap-4 text-xs">
-                    <span className="text-text-tertiary w-36 font-mono">
-                      {typeof entry.at === 'string' ? new Date(entry.at).toLocaleString('en-GB') : '—'}
+      {/* Status History & Audit Log */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Timeline */}
+        <div className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--color-text-on-dark-muted)] pb-2 border-b border-white/5">
+            Status Transition History
+          </h3>
+          {report.timeline.length === 0 ? (
+            <p className="text-xs text-[var(--color-text-on-dark-muted)] italic">No transitions recorded.</p>
+          ) : (
+            <div className="space-y-3 text-xs">
+              {report.timeline.map((entry, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6A1A] mt-1.5 flex-shrink-0" />
+                  <div>
+                    <span className="font-mono text-white">{entry.from} &rarr; {entry.to}</span>
+                    {entry.reason && (
+                      <p className="text-[11px] text-[var(--color-text-on-dark-muted)] mt-0.5">{entry.reason}</p>
+                    )}
+                    <span className="text-[10px] font-mono text-[var(--color-text-on-dark-muted)] opacity-60">
+                      {new Date(entry.at).toLocaleString('en-GB')}
                     </span>
-                    <span className="text-text-secondary">{String(entry.from ?? '—')}</span>
-                    <span className="text-text-tertiary">→</span>
-                    <span className="text-text-primary">{String(entry.to ?? '—')}</span>
-                    {Boolean(entry.reason) && <span className="text-text-tertiary">({String(entry.reason)})</span>}
-                    {Boolean(entry.actorId) && <span className="text-text-tertiary">by {String(entry.actorId)}</span>}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* AI intelligence results */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>AI intelligence results ({aiResults.length})</div>
-            {aiResults.length === 0 ? (
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-tertiary">No AI intelligence results for this opportunity.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {aiResults.map((r) => (
-                  <div key={r.id} className="px-5 py-3">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-medium text-text-primary">{r.operationType}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${
-                        r.dataStatus === 'VERIFIED'     ? 'border-emerald-800 text-emerald-400' :
-                        r.dataStatus === 'PROVISIONAL'  ? 'border-blue-800 text-blue-400'       :
-                        r.dataStatus === 'USER_PROVIDED'? 'border-blue-800 text-blue-400'       :
-                        r.dataStatus === 'CALCULATED'   ? 'border-amber-800 text-amber-400'     :
-                        'border-border text-text-tertiary'
-                      }`}>{r.dataStatus}</span>
-                      {r.requiresReview && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-sm border border-amber-800 text-amber-400">Review required</span>
-                      )}
-                      <span className="text-xs text-text-tertiary ml-auto">
-                        {Math.round(Number(r.confidence) * 100)}% confidence
-                      </span>
-                    </div>
-                    <p className="text-xs text-text-tertiary">{new Date(r.createdAt).toLocaleString('en-GB')}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Right column */}
-        <div className="space-y-4">
-
-          {/* Data quality */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Data quality</div>
-            <div className="px-5 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs text-text-secondary">Overall score</span>
-                <span className={`text-lg font-light ${
-                  qualityScore === null      ? 'text-text-tertiary' :
-                  qualityScore > 70          ? 'text-emerald-400'   :
-                  qualityScore > 40          ? 'text-amber-400'     : 'text-red-400'
-                }`}>
-                  {qualityScore !== null ? `${qualityScore}%` : 'Not assessed'}
-                </span>
-              </div>
-              {qualityScore !== null && (
-                <div className="w-full h-1.5 bg-surface-2 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      qualityScore > 70 ? 'bg-emerald-500' :
-                      qualityScore > 40 ? 'bg-amber-400'   : 'bg-red-500'
-                    }`}
-                    style={{ width: `${qualityScore}%` }}
-                  />
+        {/* Audit Log */}
+        <div className="bg-[#0D0D0D] border border-white/10 rounded-lg p-5 space-y-3">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-[var(--color-text-on-dark-muted)] pb-2 border-b border-white/5">
+            Audit Trail
+          </h3>
+          {auditLogs.length === 0 ? (
+            <p className="text-xs text-[var(--color-text-on-dark-muted)] italic">No audit records.</p>
+          ) : (
+            <div className="space-y-2.5 text-xs max-h-60 overflow-y-auto">
+              {auditLogs.map((log) => (
+                <div key={log.id} className="flex items-center justify-between py-1 border-b border-white/5 last:border-0">
+                  <span className="font-mono text-white text-[11px]">{log.action}</span>
+                  <span className="font-mono text-[10px] text-[var(--color-text-on-dark-muted)]">
+                    {new Date(log.createdAt).toLocaleDateString('en-GB')}
+                  </span>
                 </div>
-              )}
-              <p className="text-xs text-text-tertiary mt-3">
-                Data quality scoring requires human review to assess completeness, 
-                document verification, and AI output validation.
-              </p>
-            </div>
-          </div>
-
-          {/* Matched providers */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Matched providers ({opp.matchedProviderIds.length})</div>
-            {opp.matchedProviderIds.length === 0 ? (
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-tertiary">No providers matched yet.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {opp.matchedProviderIds.map((pid) => (
-                  <div key={pid} className="px-5 py-2.5 text-xs text-text-secondary font-mono">{pid}</div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Audit log */}
-          <div className={PANEL}>
-            <div className={PANEL_HEADER}>Audit log ({auditLogs.length})</div>
-            {auditLogs.length === 0 ? (
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-tertiary">No audit events recorded.</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border max-h-64 overflow-y-auto">
-                {auditLogs.map((log) => (
-                  <div key={log.id} className="px-5 py-2.5">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-medium text-text-primary">{log.action}</span>
-                      <span className="text-xs text-text-tertiary ml-auto">
-                        {new Date(log.createdAt).toLocaleDateString('en-GB')}
-                      </span>
-                    </div>
-                    {log.reason && <p className="text-xs text-text-tertiary">{log.reason}</p>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Notes */}
-          {opp.internalNotes && (
-            <div className={PANEL}>
-              <div className={PANEL_HEADER}>Internal notes</div>
-              <div className="px-5 py-4">
-                <p className="text-xs text-text-secondary leading-relaxed whitespace-pre-wrap">{opp.internalNotes}</p>
-              </div>
+              ))}
             </div>
           )}
         </div>

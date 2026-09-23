@@ -592,6 +592,8 @@ model Lender {
   criteriaVersions    ProviderCriteriaVersion[]
   memberships         ProviderMembership[]
   opportunityMatches  OpportunityProvider[]
+  informationRequests InformationRequest[]
+  billingRecords      ProviderBillingRecord[]
 
   @@index([status])
   @@index([verificationStatus])
@@ -882,6 +884,7 @@ model Opportunity {
   application         FinanceApplication? @relation(fields: [applicationId], references: [id])
   asset               Asset?            @relation(fields: [assetId], references: [id])
   providerMatches     OpportunityProvider[]
+  informationRequests InformationRequest[]
 
   @@index([businessId])
   @@index([status])
@@ -1293,4 +1296,71 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+// ─── Phase 6: Information Request Loop ────────────────────────────────────────
+
+model InformationRequest {
+  id                String   @id @default(cuid())
+  opportunityId     String
+  lenderId          String
+  requestedByUserId String?
+  requestedFields   String[] @default([])
+  requestNotes      String
+  status            String   @default("PENDING") // PENDING | RESPONDED | CLOSED
+  borrowerResponse  String?
+  responseDocuments Json?
+  respondedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  opportunity       Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  lender            Lender      @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  @@index([opportunityId])
+  @@index([lenderId])
+  @@index([status])
+  @@map("information_requests")
+}
+
+// ─── Phase 6: Entity Resolution Review ────────────────────────────────────────
+
+model EntityResolutionCandidate {
+  id                    String   @id @default(cuid())
+  entityType            String   // MANUFACTURER | ASSET_MODEL | CATEGORY
+  sourceRawName         String
+  proposedCanonicalId   String?
+  proposedCanonicalName String
+  confidence            Decimal  @db.Decimal(4, 3)
+  matchingEvidence      String
+  status                String   @default("PENDING") // PENDING | APPROVED | REJECTED
+  reviewerId            String?
+  decisionReason        String?
+  decisionAt            DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([entityType, status])
+  @@map("entity_resolution_candidates")
+}
+
+// ─── Phase 6: Commercial Billing & Monetization Architecture ──────────────────
+//
+// Inactive by default during Pilot phase. Defines fee attribution structures.
+
+model ProviderBillingRecord {
+  id             String   @id @default(cuid())
+  lenderId       String
+  planType       String   @default("PILOT") // PILOT | STANDARD | ENTERPRISE
+  event          String   // INTRODUCTION | OPPORTUNITY_VIEW | CONVERSION
+  amount         Decimal  @db.Decimal(10, 2) @default(0.00)
+  currency       String   @default("GBP")
+  isBilled       Boolean  @default(false) // Inactive by default
+  reference      String?
+  createdAt      DateTime @default(now())
+
+  lender         Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+
+  @@index([lenderId])
+  @@map("provider_billing_records")
 }
