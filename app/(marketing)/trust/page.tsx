@@ -3,349 +3,312 @@ import Link from 'next/link'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { SectionHeading } from '@/components/marketing/SectionHeading'
-import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 import { AnimateOnScroll } from '@/components/motion/AnimateOnScroll'
-import { generateMetadata as genMeta } from '@/lib/seo/metadata'
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
+import { Button } from '@/components/ui/Button'
+import { generateMetadata } from '@/lib/seo/metadata'
 
-export const metadata: Metadata = genMeta({
-  title: 'Data Governance, Trust & Methodology',
+export const metadata: Metadata = generateMetadata({
+  title: 'Data Governance, Trust & Provenance Architecture | TAFM',
   description:
-    'How TAFM handles data integrity — 4 data status tiers, strict market observation rules (asking price vs sale price), deterministic matching provenance, and strict AI boundaries.',
+    'TAFM’s credibility depends on total transparency regarding data origin, verification status, AI boundaries, and market observation taxonomy. Learn how TAFM records, verifies, and audits data.',
   canonical: '/trust',
 })
 
 const DATA_STATUSES = [
   {
     status: 'VERIFIED',
-    badgeClass: 'border-emerald-600 text-emerald-400 bg-emerald-950/20',
-    title: 'Direct Authoritative Evidence',
-    description:
-      'Information confirmed directly by an official source (e.g., manufacturer technical specification, certified public auction transcript, Companies House statutory filing, or FCA register entry). Recorded with immutable source attribution.',
+    badge: 'border-emerald-500/40 text-emerald-400 bg-emerald-950/20',
+    definition: 'Independently confirmed by official OEM filings, certified auction records, or Companies House registries.',
+    implication: 'Treated as established commercial fact. Eligible for public search indexing and formal criteria matching.',
   },
   {
     status: 'KNOWN',
-    badgeClass: 'border-blue-600 text-blue-400 bg-blue-950/20',
-    title: 'Documented External Source',
-    description:
-      'Information documented from a recognized external source (e.g., published dealer equipment asking price, supplier quotation, or published lender policy document) that has not yet undergone secondary external confirmation.',
+    badge: 'border-blue-500/40 text-blue-400 bg-blue-950/20',
+    definition: 'Directly submitted by authenticated commercial suppliers, authorized dealers, or registered applicants.',
+    implication: 'Treated as authoritative commercial claims subject to documentary review prior to formal underwriting submission.',
   },
   {
     status: 'INFERRED',
-    badgeClass: 'border-amber-600 text-amber-400 bg-amber-950/20',
-    title: 'Calculated or Derived Value',
-    description:
-      'Values mathematically derived or estimated (e.g., illustrative amortization repayments, statistical depreciation curves, or entity matching confidence scores). Never presented as verified primary fact.',
+    badge: 'border-amber-500/40 text-amber-400 bg-amber-950/20',
+    definition: 'Derived, calculated, or parsed via AI extraction models, statistical regression, or algorithmic synthesis.',
+    implication: 'Never treated as primary fact. Explicitly labelled so users and underwriters know it was computationally derived.',
   },
   {
     status: 'UNKNOWN',
-    badgeClass: 'border-gray-600 text-gray-400 bg-gray-900/30',
-    title: 'Explicit Absence of Data',
-    description:
-      'Information that does not exist in the system or where observation volume is insufficient for statistical confidence. TAFM explicitly states when data is unknown rather than substituting synthetic placeholders.',
+    badge: 'border-neutral-500/40 text-neutral-400 bg-neutral-900/40',
+    definition: 'Information gaps where authoritative data does not yet exist or has not met verification thresholds.',
+    implication: 'TAFM states "Insufficient Data" rather than inventing or extrapolating an unverified estimate.',
   },
 ]
 
-const MARKET_DATA_TYPES = [
+const OBSERVATION_TYPES = [
   {
-    type: 'ASKING PRICE',
-    definition: 'Advertised asking price from dealer listing or classified advertisement.',
-    treatment: 'Treated as an offer to negotiate. Never treated as a sale price or formal valuation.',
+    type: 'AUCTION RESULT',
+    tag: 'AUCTION_RESULT',
+    desc: 'Certified hammer price achieved at unreserved or public equipment auctions (e.g. Euro Auctions, Ritchie Bros). Represents an actual verified arm’s-length transaction.',
+    rule: 'Weighted with highest empirical confidence in secondary market valuation calculations.',
   },
   {
     type: 'SALE PRICE',
-    definition: 'Verified bilateral transaction price between willing buyer and willing seller.',
-    treatment: 'Documented with transactional evidence. Distinguishes retail trade from trade wholesale.',
+    tag: 'SALE_PRICE',
+    desc: 'Documented bilateral purchase price between independent commercial parties, evidenced by invoices and proof of funds.',
+    rule: 'Treated as actual historic transaction evidence.',
   },
   {
-    type: 'AUCTION RESULT',
-    definition: 'Public hammer price achieved at certified commercial equipment auction.',
-    treatment: 'Reflects realized liquidation value on a specific date, location, and asset condition.',
+    type: 'ASKING PRICE',
+    tag: 'ASKING_PRICE',
+    desc: 'Advertised retail price listed by commercial equipment dealers or online marketplaces (e.g. PlantTrader).',
+    rule: 'NEVER CONFLATED WITH SALE PRICE. An asking price reflects seller aspirations, not concluded transaction value.',
   },
   {
     type: 'DEALER PRICE',
-    definition: 'Trade wholesale or distributor benchmark provided by verified equipment dealer.',
-    treatment: 'Used to calibrate trade entry points; distinguished from advertised retail prices.',
+    tag: 'DEALER_PRICE',
+    desc: 'Official list price or commercial quote provided directly by an authorized OEM dealership.',
+    rule: 'Used for benchmark replacement value, but adjusted for prevailing commercial discount margins.',
   },
   {
-    type: 'VALUATION',
-    definition: 'Formal appraisal derived from sufficient volume of verified transactions.',
-    treatment: 'Never displayed unless minimum sample size (>=3 verified points) and statistical thresholds are met.',
+    type: 'FORMAL VALUATION',
+    tag: 'VALUATION',
+    desc: 'Independent plant and machinery appraiser report (desktop or physical inspection) produced by RICS/accredited valuers.',
+    rule: 'Only accepted when appraiser identity and methodology are formally recorded.',
   },
   {
     type: 'USER SUBMITTED',
-    definition: 'Purchase price or estimate submitted by an applicant or equipment owner.',
-    treatment: 'Treated as unverified customer representation until backed by supplier invoice or proof of purchase.',
+    tag: 'USER_SUBMITTED',
+    desc: 'Price or valuation figure self-reported by an applicant prior to documentary verification.',
+    rule: 'Treated as provisional until substantiated by a formal supplier quotation.',
   },
 ]
 
 export default function TrustPage() {
   return (
     <>
-      {/* Hero */}
+      {/* ── 1. CINEMATIC HERO ────────────────────────────────────────────── */}
       <Section variant="dark" spacing="2xl" className="pt-32">
         <Container>
           <Breadcrumbs
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Trust & Transparency', current: true },
-            ]}
+            items={[{ label: 'Home', href: '/' }, { label: 'Trust & Data Governance', current: true }]}
             variant="dark"
-            className="mb-12"
+            className="mb-8"
           />
+
           <AnimateOnScroll>
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 border border-white/10 bg-white/5 rounded-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
               <span className="text-caption font-mono uppercase tracking-wider text-white/70">
-                Data Methodology & Governance
+                Institutional Data Integrity & Methodology
               </span>
             </div>
+
             <SectionHeading
               as="h1"
               size="display-xl"
               variant="dark"
-              eyebrow="Integrity & Provenance"
-              subtitle="TAFM's credibility depends on complete transparency about what we know, what we infer, and what is unknown."
+              eyebrow="Marketplace Credibility"
             >
-              Trust & data transparency.
+              Data, Trust & Provenance.
             </SectionHeading>
+
+            <p className="text-body-lg font-light text-neutral-300 max-w-3xl leading-relaxed mt-4">
+              TAFM is founded on total honesty regarding what we know, what we do not know, and how every data point was established. We do not invent market values, inflate approval statistics, or blur the boundary between asking prices and actual sales.
+            </p>
           </AnimateOnScroll>
         </Container>
       </Section>
 
-      {/* 1. DATA STATUS FRAMEWORK */}
-      <Section variant="light" spacing="2xl" id="data-status">
+      {/* ── 2. THE 4 DATA STATES ─────────────────────────────────────────── */}
+      <Section variant="light" spacing="2xl">
         <Container>
-          <div className="max-w-3xl mb-12">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="heading-xl"
-                variant="light"
-                eyebrow="Section 01"
-              >
-                Data Status Framework
-              </SectionHeading>
-              <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed">
-                Every material data point within TAFM—from equipment specifications to provider underwriting appetite—carries an explicit provenance classification. We do not blend assumptions with verified records.
-              </p>
-            </AnimateOnScroll>
+          <div className="mb-12">
+            <span className="text-label text-neutral-500 uppercase font-mono tracking-widest">
+              Core Data Model
+            </span>
+            <h2 className="text-heading-xl font-light text-neutral-900 mt-2">
+              The Four Explicit Data States
+            </h2>
+            <p className="text-body text-neutral-600 font-light mt-1">
+              Every critical entity record on TAFM carries an explicit data provenance tag:
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {DATA_STATUSES.map((item) => (
-              <AnimateOnScroll key={item.status}>
-                <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-white h-full flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className={`px-2.5 py-1 text-xs font-mono border rounded-sm ${item.badgeClass}`}>
-                        {item.status}
-                      </span>
-                      <h3 className="text-heading-sm font-light text-[var(--color-text-on-light-primary)]">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <p className="text-body-sm font-light text-[var(--color-text-on-light-2)] leading-relaxed">
-                      {item.description}
-                    </p>
-                  </div>
+            {DATA_STATUSES.map((s) => (
+              <div
+                key={s.status}
+                className="p-8 rounded border border-neutral-200 bg-white shadow-sm hover:border-neutral-300 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`px-2.5 py-1 rounded text-xs font-mono uppercase font-semibold border ${s.badge}`}>
+                    {s.status}
+                  </span>
+                  <span className="text-[11px] font-mono uppercase text-neutral-400">
+                    Provenance Class
+                  </span>
                 </div>
-              </AnimateOnScroll>
+                <h3 className="text-heading-md font-normal text-neutral-900 mb-2">
+                  Status: {s.status}
+                </h3>
+                <p className="text-body-sm font-light text-neutral-700 leading-relaxed mb-4">
+                  {s.definition}
+                </p>
+                <div className="pt-4 border-t border-neutral-100 text-xs font-light text-neutral-500 leading-relaxed">
+                  <strong className="font-medium text-neutral-800">Operational Rule:</strong> {s.implication}
+                </div>
+              </div>
             ))}
           </div>
         </Container>
       </Section>
 
-      {/* 2. MARKET DATA INTEGRITY */}
-      <Section variant="off-white" spacing="2xl" id="market-data">
+      {/* ── 3. MARKET OBSERVATION TAXONOMY ────────────────────────────────── */}
+      <Section variant="light" spacing="2xl" className="border-t border-neutral-200 bg-neutral-50/50">
         <Container>
-          <div className="max-w-3xl mb-12">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="heading-xl"
-                variant="light"
-                eyebrow="Section 02"
-              >
-                Market Data Integrity
-              </SectionHeading>
-              <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed mb-6">
-                Equipment valuation requires precise data hygiene. We track 6 distinct market data types, each reflecting a specific observation context.
-              </p>
+          <div className="mb-12">
+            <span className="text-label text-neutral-500 uppercase font-mono tracking-widest">
+              Empirical Market Data
+            </span>
+            <h2 className="text-heading-xl font-light text-neutral-900 mt-2">
+              Market Observation Taxonomy
+            </h2>
+            <p className="text-body text-neutral-600 font-light mt-1">
+              Never combine asking prices, auction results, and book values into a single ambiguous "market value".
+            </p>
+          </div>
 
-              {/* MANDATORY PROMPT STATEMENT */}
-              <div className="p-5 border-l-4 border-orange-500 bg-orange-50/60 rounded-r-sm">
-                <p className="text-body-sm font-medium text-orange-950 uppercase tracking-wide mb-1">
-                  Core Market Rule:
-                </p>
-                <p className="text-heading-sm font-light text-orange-900 leading-snug">
-                  An asking price is not treated as a sale price or valuation.
-                </p>
-                <p className="text-caption font-light text-orange-800 mt-2">
-                  Asking prices indicate seller aspirations; auction results indicate realized liquidation cash; sale prices indicate bilateral agreements. TAFM never averages or conflates these into artificial values.
-                </p>
-              </div>
-            </AnimateOnScroll>
+          <div className="p-6 rounded border-2 border-orange-500 bg-white mb-10 shadow-sm">
+            <h3 className="text-heading-md font-normal text-neutral-900 mb-1">
+              Absolute Rule: An Asking Price is Never Treated as a Sale Price
+            </h3>
+            <p className="text-body-sm font-light text-neutral-700 leading-relaxed">
+              In commercial plant and equipment markets, asking prices on dealer portals can differ by 15% to 30% from actual transacted cash settlements. TAFM rigorously segments dealer listings from completed auction hammer results and bilateral sales.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MARKET_DATA_TYPES.map((m) => (
-              <AnimateOnScroll key={m.type}>
-                <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-white h-full flex flex-col justify-between">
-                  <div>
-                    <span className="text-caption font-mono uppercase text-orange-600 block mb-2">
-                      {m.type}
+            {OBSERVATION_TYPES.map((obs) => (
+              <div
+                key={obs.tag}
+                className="p-6 rounded border border-neutral-200 bg-white shadow-sm hover:border-orange-500/50 transition-colors flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-mono text-xs uppercase px-2 py-0.5 rounded bg-neutral-100 text-neutral-800 font-medium">
+                      {obs.type}
                     </span>
-                    <h3 className="text-body font-medium text-[var(--color-text-on-light-primary)] mb-2">
-                      {m.definition}
-                    </h3>
-                    <p className="text-caption font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-                      {m.treatment}
-                    </p>
+                    <span className="text-[10px] font-mono text-neutral-400">
+                      {obs.tag}
+                    </span>
                   </div>
+                  <p className="text-body-sm font-light text-neutral-600 leading-relaxed mb-4">
+                    {obs.desc}
+                  </p>
                 </div>
-              </AnimateOnScroll>
+                <div className="pt-3 border-t border-neutral-100 text-caption font-light text-neutral-500 font-mono">
+                  {obs.rule}
+                </div>
+              </div>
             ))}
           </div>
+        </Container>
+      </Section>
 
-          <div className="mt-8 p-4 border border-[var(--color-border-light)] bg-white rounded-sm">
-            <p className="text-caption text-[var(--color-text-on-light-muted)] font-light">
-              <strong>Formal Valuation Rule:</strong> Where fewer than three verified transaction observations exist for an asset model within a relevant timeframe, TAFM explicitly renders: <em>"Insufficient verified transaction data for a formal valuation."</em>
-            </p>
+      {/* ── 4. THE ROLE OF AI ─────────────────────────────────────────────── */}
+      <Section variant="dark-2" spacing="2xl" className="border-t border-white/10">
+        <Container>
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="text-center space-y-3">
+              <span className="text-label text-orange-400 font-mono uppercase tracking-widest">
+                Responsible Automation
+              </span>
+              <h2 className="text-display-md font-extralight text-white">
+                The Role of AI on TAFM
+              </h2>
+              <p className="text-body text-neutral-300 font-light max-w-2xl mx-auto leading-relaxed">
+                We believe artificial intelligence is exceptionally powerful for structuring unstructured technical data, but must never substitute for human credit responsibility.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6">
+              <div className="p-6 rounded border border-white/10 bg-[#0d0d0d] space-y-3">
+                <span className="text-[11px] font-mono uppercase text-emerald-400 tracking-wider font-semibold block">
+                  ✓ What AI Does on TAFM
+                </span>
+                <p className="text-body-sm text-neutral-300 font-light leading-relaxed">
+                  Extracts structured specifications from PDF quotes and engineering brochures. Categorises equipment into our 11 industrial taxonomies. Identifies model variants and standardises technical specifications for underwriting dossiers.
+                </p>
+              </div>
+
+              <div className="p-6 rounded border border-white/10 bg-[#0d0d0d] space-y-3">
+                <span className="text-[11px] font-mono uppercase text-red-400 tracking-wider font-semibold block">
+                  ✕ What AI NEVER Does on TAFM
+                </span>
+                <p className="text-body-sm text-neutral-300 font-light leading-relaxed">
+                  AI NEVER makes credit decisions. AI NEVER determines lender approvals or declines. AI outputs are NEVER treated as verified facts—they remain classified as `INFERRED` until reviewed by human specialists.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-5 rounded bg-white/[0.02] border border-white/5 text-center text-caption text-neutral-400 font-light">
+              Underwriting autonomy and regulatory credit assessment remain 100% with authorized institutional lenders.
+            </div>
           </div>
         </Container>
       </Section>
 
-      {/* 3. STRICT AI BOUNDARIES */}
-      <Section variant="dark-2" spacing="2xl" id="ai-boundaries">
+      {/* ── 5. DATA PROVENANCE & AUDITABILITY ─────────────────────────────── */}
+      <Section variant="light" spacing="2xl">
         <Container>
-          <div className="max-w-3xl mb-12">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="heading-xl"
-                variant="dark"
-                eyebrow="Section 03"
-              >
-                AI Capabilities & Strict Boundaries
-              </SectionHeading>
-              <p className="text-body font-light text-white/70 leading-relaxed">
-                Artificial Intelligence plays a defined, constrained operational support role within TAFM. We are explicit about what AI does and does NOT do.
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 space-y-6">
+              <span className="text-label text-neutral-500 uppercase font-mono tracking-widest">
+                Verification Pipeline
+              </span>
+              <h2 className="text-heading-xl font-light text-neutral-900">
+                How Provenance is Maintained
+              </h2>
+              <p className="text-body text-neutral-700 font-light leading-relaxed">
+                When a price, specification, or provider profile appears on TAFM, the question <em className="font-serif">"Where did this number come from?"</em> always has a definitive, timestamped answer.
               </p>
-            </AnimateOnScroll>
-          </div>
+              <ul className="space-y-3 text-body-sm text-neutral-600 font-light">
+                <li className="flex items-start gap-2.5">
+                  <span className="text-orange-600 font-mono font-bold">01</span>
+                  <span><strong className="font-medium text-neutral-900">Source Logging:</strong> Every observation references a specific DataSource ID, certified auction lot, or dealer URL.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-orange-600 font-mono font-bold">02</span>
+                  <span><strong className="font-medium text-neutral-900">Versioned Criteria:</strong> Lender underwriting criteria are version-controlled with effective-from dates and reason codes.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <span className="text-orange-600 font-mono font-bold">03</span>
+                  <span><strong className="font-medium text-neutral-900">Immutable Audit Trail:</strong> Critical application milestones and data edits are logged permanently in audit records.</span>
+                </li>
+              </ul>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* What AI Assists With */}
-            <AnimateOnScroll>
-              <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#080808] h-full">
-                <span className="text-caption font-mono uppercase text-emerald-400 block mb-2">
-                  PERMITTED AI CAPABILITIES
-                </span>
-                <h3 className="text-heading-md font-light text-white mb-4">
-                  What AI may assist with:
-                </h3>
-                <ul className="space-y-3 font-light text-sm text-white/80" role="list">
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Data Extraction:</strong> Extracting equipment specifications, working hours, and VIN numbers from supplier invoices and spec sheets.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Asset Classification:</strong> Categorising complex machinery into standardized taxonomy codes.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Market Intelligence:</strong> Normalizing raw auction listings and parsing certified hammer results.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Structured Analysis:</strong> Formatting borrower submission dossiers to ensure complete provider review packages.</span>
-                  </li>
-                </ul>
+            <div className="lg:col-span-6 p-8 rounded border border-neutral-200 bg-neutral-50 space-y-6">
+              <h3 className="text-body font-medium text-neutral-900 font-mono uppercase text-xs">
+                Explore Verified Marketplace Data
+              </h3>
+              <p className="text-body-sm text-neutral-600 font-light leading-relaxed">
+                Experience TAFM’s data provenance in action on our verified entity records:
+              </p>
+              <div className="space-y-3">
+                <Link
+                  href="/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022"
+                  className="block p-4 rounded border border-neutral-200 bg-white hover:border-orange-500 text-body-sm font-light text-neutral-800 transition-colors"
+                >
+                  <span className="font-medium block text-neutral-900">Verified Asset: Ruthmann STEIGER T 650 HF</span>
+                  <span className="text-xs text-neutral-500 mt-0.5 block">Inspect separated auction hammer prices vs dealer asking listings.</span>
+                </Link>
+                <Link
+                  href="/providers"
+                  className="block p-4 rounded border border-neutral-200 bg-white hover:border-orange-500 text-body-sm font-light text-neutral-800 transition-colors"
+                >
+                  <span className="font-medium block text-neutral-900">Verified Provider: Haydock Finance Ltd</span>
+                  <span className="text-xs text-neutral-500 mt-0.5 block">Review verified FCA reference 716766 and published appetite criteria.</span>
+                </Link>
               </div>
-            </AnimateOnScroll>
-
-            {/* What AI Strictly NEVER Does */}
-            <AnimateOnScroll delay={80}>
-              <div className="p-8 border border-red-500/30 rounded-sm bg-[#0d0707] h-full">
-                <span className="text-caption font-mono uppercase text-red-400 block mb-2">
-                  STRICT NON-NEGOTIABLE BOUNDARIES
-                </span>
-                <h3 className="text-heading-md font-light text-white mb-4">
-                  What AI does NOT do:
-                </h3>
-                <ul className="space-y-3 font-light text-sm text-white/80" role="list">
-                  <li className="flex items-start gap-3">
-                    <span className="text-red-400 font-bold">✕</span>
-                    <span><strong>No Lender Credit Decisions:</strong> AI never makes credit approvals, declines, or risk sanctions.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-red-400 font-bold">✕</span>
-                    <span><strong>No Synthetic Approvals:</strong> AI cannot generate automated finance offers or commit capital.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-red-400 font-bold">✕</span>
-                    <span><strong>No Hallucinated Facts:</strong> AI never turns estimates, inferred numbers, or asking prices into verified facts.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-red-400 font-bold">✕</span>
-                    <span><strong>No Underwriting Replacement:</strong> AI does not replace direct regulated human underwriting by participating finance providers.</span>
-                  </li>
-                </ul>
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </Container>
-      </Section>
-
-      {/* 4. SECURITY & AUDIT TRAIL */}
-      <Section variant="light" spacing="2xl" id="security">
-        <Container>
-          <div className="max-w-3xl mb-12">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="heading-xl"
-                variant="light"
-                eyebrow="Section 04"
-              >
-                Security & Immutable Audit Logging
-              </SectionHeading>
-              <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed">
-                Commercial finance involves sensitive corporate balance sheets, asset valuations, and personal identity data. TAFM enforces strict multi-tenant isolation.
-              </p>
-            </AnimateOnScroll>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-[var(--color-surface-off-white)]">
-              <h4 className="text-body font-medium text-[var(--color-text-on-light-primary)] mb-2">Cryptographic Tokens</h4>
-              <p className="text-body-sm font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-                Borrower financial accounts and invoices are protected by time-bound, HMAC-signed download URLs. No private commercial documents are ever publicly indexable or linkable.
-              </p>
-            </div>
-            <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-[var(--color-surface-off-white)]">
-              <h4 className="text-body font-medium text-[var(--color-text-on-light-primary)] mb-2">Multi-Tenant Isolation</h4>
-              <p className="text-body-sm font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-                Borrowers cannot access documents or details of other businesses. Participating lenders can only access files for opportunities formally submitted to them.
-              </p>
-            </div>
-            <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-[var(--color-surface-off-white)]">
-              <h4 className="text-body font-medium text-[var(--color-text-on-light-primary)] mb-2">Immutable Provenance</h4>
-              <p className="text-body-sm font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-                Criteria versions, matching factor evaluations, and state changes are recorded in append-only database audit logs to guarantee non-repudiation.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-[var(--color-border-light)] flex flex-wrap gap-4 items-center justify-between">
-            <p className="text-body-sm font-light text-[var(--color-text-on-light-muted)]">
-              Questions regarding our data methodology or criteria governance?
-            </p>
-            <div className="flex gap-4">
-              <Link href="/contact" className="text-body-sm text-orange-600 hover:underline">
-                Contact Data Governance Team →
-              </Link>
             </div>
           </div>
         </Container>

@@ -17,6 +17,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
+      url: `${SITE_URL}/asset-finance`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
       url: `${SITE_URL}/assets`,
       lastModified: now,
       changeFrequency: 'weekly',
@@ -28,6 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    // Dedicated Finance Structure Educational Guides
     {
       url: `${SITE_URL}/finance/hire-purchase`,
       lastModified: now,
@@ -83,6 +90,48 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${SITE_URL}/providers/haydock-finance`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/manufacturers`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/manufacturers/ruthmann`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/manufacturers/scania`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/manufacturers/palfinger`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/manufacturers/jcb`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/manufacturers/liebherr`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/trust`,
       lastModified: now,
       changeFrequency: 'monthly',
@@ -100,7 +149,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.5,
     },
-    // Asset category pages (all 10 verified categories)
+    // Verified Flagship Asset Detail Page
+    {
+      url: `${SITE_URL}/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    // Asset Category Taxonomy Pages
     {
       url: `${SITE_URL}/assets/construction-equipment`,
       lastModified: now,
@@ -156,12 +212,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
     {
+      url: `${SITE_URL}/assets/hospitality-equipment`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/assets/specialist-equipment`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
-    // Legal
+    // Legal & Regulatory Disclosures
     {
       url: `${SITE_URL}/legal/privacy`,
       lastModified: now,

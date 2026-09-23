@@ -465,11 +465,11 @@ export default async function AssetCategoryPage({
                         </div>
 
                         <div className="pt-2 flex flex-wrap gap-4">
-                          <Button as="a" href="/apply" variant="primary" size="md">
-                            Finance this asset
+                          <Button as="a" href={`/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022`} variant="primary" size="md">
+                            View Full Asset Specification & Observations →
                           </Button>
-                          <Button as="a" href="/finance-calculator" variant="outline" size="md">
-                            Illustrative calculator
+                          <Button as="a" href="/apply?category=specialist-equipment&asset=Ruthmann%20STEIGER%20T%20650%20HF" variant="secondary" size="md">
+                            Finance this asset
                           </Button>
                         </div>
                       </div>

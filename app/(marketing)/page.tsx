@@ -13,27 +13,25 @@ import { TransactionFlow } from '@/components/marketing/TransactionFlow'
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = generateMetadata({
-  title: 'TAFM — The Asset Finance Marketplace',
+  title: 'TAFM — The Asset Finance Marketplace | UK Business Equipment Finance',
   description:
-    'One asset. One application. Multiple financing possibilities. TAFM connects UK businesses, equipment suppliers and specialist finance providers around capital assets.',
+    'TAFM connects UK businesses, equipment suppliers and specialist finance providers around the acquisition of capital equipment. One application, multiple financing possibilities.',
   canonical: '/',
   ogTitle: 'TAFM — The Asset Finance Marketplace',
   ogDescription: 'One asset. One application. Multiple financing possibilities.',
 })
 
-// ─── Asset categories (10 real TAFM categories) ───────────────────────────────
+// ─── Asset categories taxonomy ───────────────────────────────────────────────
 
 const ASSET_CATEGORIES = [
-  { label: 'Construction Equipment',      slug: 'construction-equipment',     note: 'Excavators · Cranes · Piling rigs · Groundworks' },
-  { label: 'Manufacturing Equipment',     slug: 'manufacturing-equipment',    note: 'CNC machining · Presses · Robotics · Automation' },
-  { label: 'Agricultural Equipment',      slug: 'agricultural-equipment',     note: 'Tractors · Combines · Telehandlers · Harvesting' },
-  { label: 'Commercial Vehicles',         slug: 'commercial-vehicles',        note: 'HGVs · LGVs · Curtainsiders · Tankers' },
-  { label: 'Heavy Vehicles',              slug: 'heavy-vehicles',             note: 'Low loaders · Tippers · Mixers · Sweepers' },
-  { label: 'Industrial Equipment',        slug: 'industrial-equipment',       note: 'Compressors · Generators · Materials handling' },
-  { label: 'Medical Equipment',           slug: 'medical-equipment',          note: 'MRI & CT · Diagnostic imaging · Surgical systems' },
-  { label: 'Technology & IT Equipment',   slug: 'technology-it-equipment',    note: 'Servers · Data centre · Broadcast · Networking' },
-  { label: 'Renewable Energy Equipment',  slug: 'renewable-energy-equipment', note: 'Solar PV · Wind turbines · Battery storage · EV' },
-  { label: 'Specialist Equipment',        slug: 'specialist-equipment',       note: 'Bespoke access · Heavy lifting · Niche machinery' },
+  { label: 'Construction Equipment',     slug: 'construction-equipment',  note: 'Excavators · Cranes · Piling rigs' },
+  { label: 'Commercial Vehicles',        slug: 'commercial-vehicles',     note: 'HGVs · Tractor units · Rigid trucks' },
+  { label: 'Manufacturing Machinery',    slug: 'manufacturing-equipment', note: 'CNC mills · Press brakes · Robotics' },
+  { label: 'Heavy Plant & Transport',    slug: 'heavy-vehicles',          note: 'Low loaders · Tippers · Mixers' },
+  { label: 'Agricultural Machinery',     slug: 'agricultural-equipment',  note: 'Tractors · Combines · Telehandlers' },
+  { label: 'Industrial Equipment',       slug: 'industrial-equipment',    note: 'Compressors · Generators · Forklifts' },
+  { label: 'Medical & Healthcare',       slug: 'medical-equipment',       note: 'MRI · Diagnostic systems · Surgical' },
+  { label: 'Specialist Equipment',       slug: 'specialist-equipment',    note: 'High-reach access · Bespoke plant' },
 ] as const
 
 // ─── Finance structures ───────────────────────────────────────────────────────
@@ -42,46 +40,46 @@ const FINANCE_STRUCTURES = [
   {
     type: 'Hire Purchase',
     slug: 'hire-purchase',
-    headline: 'Own the asset after completion of the agreement.',
+    highlight: 'Ownership Focus',
     description:
-      'The business pays structured instalments over a fixed term and acquires legal ownership outright upon final payment. The asset appears on balance sheet from commencement.',
-    detail: 'Ideal for equipment with long operational life, predictable depreciation, and where outright ownership is the commercial goal.',
+      'The business pays instalments over a fixed term and owns the asset outright at the end. The asset appears on balance sheet from day one with full capital allowances claimable.',
+    detail: 'Optimal for long-life plant, permanent commercial vehicles, and machinery retained long term.',
   },
   {
     type: 'Finance Lease',
     slug: 'finance-lease',
-    headline: 'Finance the use of the asset while the provider retains ownership.',
+    highlight: 'VAT & Cash Flow Efficiency',
     description:
-      'The finance provider retains legal title while the business gains full operational use. Rentals can be offset against taxable profit, with VAT spread across monthly rentals.',
-    detail: 'Ideal for businesses seeking operational flexibility, lower upfront VAT commitment, or secondary rental periods.',
+      'The finance provider owns the asset. The business leases it for its economic life without large upfront VAT outlay. Up to 95% of secondary resale value is returned to you as a rebate.',
+    detail: 'VAT is charged incrementally on monthly rentals rather than paid in full upfront.',
   },
   {
     type: 'Operating Lease',
     slug: 'operating-lease',
-    headline: 'Structure use around the asset and residual-value profile.',
+    highlight: 'Lowest Monthly Outlay',
     description:
-      'Short-to-medium term lease where the lender takes residual value risk. Monthly payments are calculated on the depreciation during the lease period rather than capital cost.',
-    detail: 'Well suited to rapidly depreciating technology, fleet commercial vehicles, and assets subject to scheduled cyclical replacement.',
+      'Short-to-medium term lease of an asset where the lender retains full residual value risk. Return or upgrade the equipment at term conclusion with minimal balance sheet exposure.',
+    detail: 'Ideal for fast-depreciating technology, commercial fleets, or fixed-duration contracts.',
   },
   {
     type: 'Asset Refinance',
     slug: 'asset-refinance',
-    headline: 'Release capital from assets already owned, subject to provider criteria.',
+    highlight: 'Capital Release',
     description:
-      'Unlocks working capital tied up in existing unencumbered or partially paid machinery. The asset is sold to a finance provider and leased back without interrupting operations.',
-    detail: 'Dependent on clear equipment title, documented maintenance provenance, and verified secondary market valuation.',
+      'Release liquid capital tied up in plant and machinery your business already owns. The equipment is sold to a finance provider and leased back, keeping operations 100% uninterrupted.',
+    detail: 'Reinvest tied-up equity into new expansion contracts or working capital liquidity.',
   },
 ] as const
 
 // ─── Lifecycle stages ─────────────────────────────────────────────────────────
 
 const LIFECYCLE_STAGES = [
-  { step: '01', label: 'Acquire',   description: 'Identify equipment, supplier specifications and quote' },
-  { step: '02', label: 'Finance',   description: 'Match requirement to specialist provider appetite' },
-  { step: '03', label: 'Operate',   description: 'Deploy asset into commercial operations' },
-  { step: '04', label: 'Value',     description: 'Track residual value and secondary market demand' },
-  { step: '05', label: 'Refinance', description: 'Restructure equity or release capital mid-cycle' },
-  { step: '06', label: 'Resell',    description: 'Exit, upgrade or remarket through verified channels' },
+  { label: 'Acquire',    description: 'Source new or used equipment from an authorized UK supplier' },
+  { label: 'Finance',    description: 'Structure funding matched deterministically to lender appetite' },
+  { label: 'Operate',    description: 'Deploy the machinery immediately into revenue-generating service' },
+  { label: 'Value',      description: 'Track ongoing residual value against certified auction benchmarks' },
+  { label: 'Refinance',  description: 'Release embedded equity to fund subsequent business expansion' },
+  { label: 'Resell / Exit', description: 'Remarket or upgrade the equipment intelligently at lifecycle conclusion' },
 ] as const
 
 // ─── Homepage Component ───────────────────────────────────────────────────────
@@ -96,7 +94,6 @@ export default function HomePage() {
         className="relative min-h-dvh flex flex-col justify-between overflow-hidden bg-[#050505]"
         aria-label="TAFM — The Asset Finance Marketplace"
       >
-        {/* Skip to content */}
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-orange-500 focus:text-white focus:rounded text-body-sm"
@@ -108,26 +105,24 @@ export default function HomePage() {
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <Image
             src="/images/hero-bg.jpg"
-            alt="Ruthmann STEIGER T 650 HF highflex access platform on Scania chassis — TAFM verified asset intelligence"
+            alt="Ruthmann STEIGER T 650 HF truck-mounted aerial platform — TAFM asset finance"
             fill
             priority
             quality={95}
             sizes="100vw"
             className="object-cover object-center lg:object-[center_right]"
           />
-          {/* Directional scrim: darkens the left side for crisp typography */}
+          {/* Directional scrim: darkens text area on the left */}
           <div
             className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/80 to-transparent w-full lg:w-[65%]"
             aria-hidden="true"
           />
-          {/* Subtle top & bottom blend */}
           <div
-            className="absolute inset-0 bg-gradient-to-b from-[#050505]/70 via-transparent to-[#050505] pointer-events-none"
+            className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505] pointer-events-none"
             aria-hidden="true"
           />
-          {/* Warm amber/orange rim light */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-25 mix-blend-screen"
+            className="absolute inset-0 pointer-events-none opacity-30 mix-blend-screen"
             aria-hidden="true"
             style={{
               background: 'radial-gradient(ellipse 50% 50% at 75% 55%, rgba(255,106,26,0.18) 0%, transparent 70%)',
@@ -135,666 +130,568 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Hero content grid */}
-        <div className="container-tafm relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 items-center min-h-dvh">
-          <div className="lg:col-span-7 flex flex-col justify-center py-24 lg:py-0 lg:pr-12">
-            {/* System Eyebrow */}
-            <div className="inline-flex items-center gap-2 mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" aria-hidden="true" />
-              <p className="text-label text-[var(--color-text-on-dark-muted)] tracking-widest uppercase">
-                UK Asset Finance Infrastructure
-              </p>
+        {/* Hero content */}
+        <div className="container-tafm relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-12 items-center min-h-dvh py-24 lg:py-0">
+          <div className="lg:col-span-7 flex flex-col justify-center lg:pr-12">
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 border border-white/10 bg-white/5 rounded-sm self-start">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+              <span className="text-caption font-mono uppercase tracking-wider text-white/70">
+                UK Asset Finance Marketplace
+              </span>
             </div>
 
-            {/* Primary headline */}
-            <h1 className="text-display-xl font-extralight text-white leading-[1.0] tracking-[0.03em] mb-6 drop-shadow-sm">
+            <h1 className="text-display-xl font-extralight text-white leading-[1.0] tracking-[0.04em] mb-5 drop-shadow-sm">
               THE ASSET
               <br />
-              <span className="text-[var(--color-text-on-dark-2)]">FINANCE</span>
+              <span className="text-neutral-400">FINANCE</span>
               <br />
               MARKETPLACE
             </h1>
 
-            {/* Core proposition */}
-            <p className="text-heading-lg font-light text-white mb-4 tracking-tight drop-shadow-sm">
-              One asset. One application. Multiple financing possibilities.
+            <p className="text-heading-md font-light text-neutral-300 mb-4 drop-shadow-sm">
+              Finance the asset. Not the hassle.
             </p>
 
-            <p className="text-body font-light text-[var(--color-text-on-dark-2)] max-w-xl leading-relaxed mb-8 drop-shadow-sm">
-              TAFM is the infrastructure layer connecting real capital equipment, commercial borrowers and specialist finance providers. Discover equipment intelligence, structure your requirement, and connect with eligible lenders without multiple fragmented applications.
+            <p className="text-body-sm text-neutral-400 font-light max-w-lg leading-relaxed mb-8 drop-shadow-sm">
+              TAFM connects UK businesses, equipment suppliers and specialist finance providers around the acquisition of business equipment. One structured application. Multiple verified financing possibilities.
             </p>
 
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4">
-              <Button as="a" href="/apply" variant="primary" size="lg">
+              <Button as="a" href="/apply" variant="primary" size="md">
                 Start an Application
               </Button>
-              <Button as="a" href="/assets" variant="secondary" size="lg">
-                Explore Assets
+              <Button as="a" href="/assets" variant="secondary" size="md">
+                Explore Asset Taxonomy
               </Button>
             </div>
 
-            {/* Verification & status badge */}
-            <div className="mt-12 pt-6 border-t border-[var(--color-border-dark)] flex flex-wrap items-center gap-6">
-              <div>
-                <p className="text-caption text-[var(--color-text-on-dark-muted)] font-light">
-                  Finance subject to status and eligibility. TAFM is an asset finance infrastructure platform, not a direct lender.
-                </p>
-              </div>
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-caption text-neutral-500 font-light font-mono">
+                Finance subject to status and eligibility. TAFM is a commercial marketplace infrastructure provider.
+              </p>
             </div>
           </div>
-
-          <div className="hidden lg:block lg:col-span-5 relative h-full pointer-events-none" aria-hidden="true" />
         </div>
 
         {/* Scroll indicator */}
-        <div className="container-tafm relative z-10 pb-8 flex justify-start" aria-hidden="true">
-          <div className="flex flex-col items-center gap-2 opacity-40">
-            <span className="text-caption text-white tracking-widest font-mono text-[10px]">SCROLL TO EXPLORE</span>
-            <div className="w-px h-8 bg-white/40" />
+        <div className="container-tafm relative z-10 pb-8 hidden sm:flex justify-start" aria-hidden="true">
+          <div className="flex items-center gap-3 opacity-40">
+            <div className="w-2 h-2 rounded-full bg-orange-500" />
+            <span className="text-[10px] text-white tracking-widest font-mono uppercase">SCROLL TO EXPLORE MARKETPLACE</span>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 2 — ASSET DISCOVERY: WHAT ARE YOU FINANCING?
+          SECTION 2 — PROPOSITION & CORE FUNCTION
       ══════════════════════════════════════════════════════════════════════ */}
       <Section variant="light" spacing="2xl" id="main-content">
         <Container>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <AnimateOnScroll>
               <SectionHeading
                 as="h2"
                 size="display-md"
                 variant="light"
-                eyebrow="Asset Discovery"
-                subtitle="Explore equipment categories supported by the TAFM provider network."
+                eyebrow="Marketplace Architecture"
                 className="mb-0"
               >
-                What are you financing?
+                One asset.
+                <br />
+                One application.
+                <br />
+                Multiple financing possibilities.
               </SectionHeading>
             </AnimateOnScroll>
 
-            <AnimateOnScroll delay={100}>
+            <AnimateOnScroll delay={120}>
+              <div className="space-y-6">
+                <p className="text-body-lg font-light text-neutral-800 leading-relaxed">
+                  Acquiring capital equipment involves three distinct parties: the equipment vendor, the acquiring business, and the institutional finance provider. Traditional broker models rely on subjective manual submissions and single-lender bias.
+                </p>
+                <p className="text-body font-light text-neutral-600 leading-relaxed">
+                  TAFM replaces this friction with standardized marketplace infrastructure. We structure application data around verified machine specifications, supplier quotes, and deterministic lender criteria—routing deals exclusively to providers with active appetite.
+                </p>
+                <div className="pt-2 flex flex-wrap gap-4">
+                  <Link
+                    href="/how-it-works"
+                    className="inline-flex items-center gap-2 text-body text-orange-600 hover:text-orange-700 transition-colors font-medium group"
+                  >
+                    Explore the 9-stage transaction process
+                    <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              </div>
+            </AnimateOnScroll>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 3 — ASSET DISCOVERY (TAXONOMY)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <Section variant="off-white" spacing="2xl">
+        <Container>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <AnimateOnScroll>
+              <SectionHeading
+                as="h2"
+                size="display-md"
+                variant="light"
+                eyebrow="Asset Taxonomy"
+                subtitle="Financing solutions across all major UK capital equipment sectors."
+                className="mb-0"
+              >
+                What are you acquiring?
+              </SectionHeading>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll delay={80}>
               <Link
                 href="/assets"
-                className="inline-flex items-center gap-2 text-body text-orange-600 hover:text-orange-700 font-light group"
+                className="text-body-sm text-neutral-700 hover:text-orange-600 transition-colors font-light underline underline-offset-4"
               >
-                View all categories
-                <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                View all 11 asset categories →
               </Link>
             </AnimateOnScroll>
           </div>
 
-          {/* Architectural category list */}
-          <div className="border-t border-[var(--color-border-light)]">
+          {/* Editorial category list */}
+          <div className="space-y-0">
             {ASSET_CATEGORIES.map((cat, index) => (
               <AnimateOnScroll key={cat.slug} delay={index * 30}>
                 <Link
                   href={`/assets/${cat.slug}`}
-                  className="group flex flex-col sm:flex-row sm:items-center justify-between py-5 border-b border-[var(--color-border-light)] hover:border-orange-500/50 hover:bg-orange-50/20 px-3 -mx-3 transition-all duration-200"
+                  className="group flex items-center justify-between py-5 border-b border-neutral-200 hover:border-orange-500 transition-all duration-200"
                 >
                   <div className="flex items-baseline gap-6">
-                    <span className="text-caption font-mono text-[var(--color-text-on-light-muted)] w-6 tabular-nums">
+                    <span className="text-caption font-mono text-neutral-400 w-6 tabular-nums">
                       {String(index + 1).padStart(2, '0')}
                     </span>
                     <div>
-                      <span className="text-heading-md font-light text-[var(--color-text-on-light-primary)] group-hover:text-orange-600 transition-colors">
+                      <span className="text-heading-lg font-light text-neutral-900 group-hover:text-orange-600 transition-colors">
                         {cat.label}
                       </span>
-                      <span className="block sm:inline sm:ml-6 text-body-sm text-[var(--color-text-on-light-muted)] font-light mt-0.5 sm:mt-0">
+                      <span className="hidden sm:inline ml-6 text-body-sm font-light text-neutral-500">
                         {cat.note}
                       </span>
                     </div>
                   </div>
-                  <div className="hidden sm:flex items-center gap-2 text-orange-500 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
-                    <span className="text-xs uppercase tracking-wider font-light">Explore category</span>
-                    <span aria-hidden="true">→</span>
-                  </div>
+                  <span
+                    className="text-orange-500 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
                 </Link>
               </AnimateOnScroll>
             ))}
           </div>
-
-          <AnimateOnScroll className="mt-12 p-6 border border-[var(--color-border-light)] rounded-[var(--radius-sm)] bg-[var(--color-surface-off-white)]">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <p className="text-body font-light text-[var(--color-text-on-light-primary)]">
-                  Have an asset outside standard classifications?
-                </p>
-                <p className="text-body-sm font-light text-[var(--color-text-on-light-3)]">
-                  TAFM supports bespoke machinery and niche industrial assets under Specialist Equipment.
-                </p>
-              </div>
-              <Button as="a" href="/apply" variant="outline" size="sm" className="whitespace-nowrap">
-                Submit custom requirement
-              </Button>
-            </div>
-          </AnimateOnScroll>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 3 — SHOW THE TAFM SYSTEM (8-NODE VISUAL FLOW)
+          SECTION 4 — REAL VERIFIED ASSET INTELLIGENCE FEATURE (SECTION 13)
       ══════════════════════════════════════════════════════════════════════ */}
-      <Section variant="dark-2" spacing="2xl">
+      <Section variant="dark" spacing="2xl" className="border-t border-white/10">
         <Container>
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <AnimateOnScroll>
-              <p className="text-label text-[var(--color-text-on-dark-muted)] tracking-widest uppercase mb-4">
-                Operating Architecture
-              </p>
-              <h2 className="text-display-md font-extralight text-white mb-6">
-                The TAFM System
-              </h2>
-              <p className="text-body-lg font-light text-[var(--color-text-on-dark-2)] leading-relaxed">
-                How an asset acquisition moves from manufacturer quote through deterministic structuring to independent provider underwriting.
-              </p>
-            </AnimateOnScroll>
+          <div className="mb-12">
+            <span className="text-label text-orange-400 font-mono uppercase tracking-widest">
+              Live Asset Intelligence Feature
+            </span>
+            <h2 className="text-display-md font-extralight text-white mt-2">
+              Verified Asset & Market Evidence
+            </h2>
+            <p className="text-body text-neutral-400 font-light mt-2 max-w-2xl">
+              An empirical showcase of TAFM asset data: official manufacturer specifications alongside strictly separated public auction hammer prices and dealer asking listings.
+            </p>
           </div>
 
-          {/* Visual 8-Node Flow */}
-          <AnimateOnScroll>
-            <div className="p-8 lg:p-12 border border-[var(--color-border-dark)] rounded-[var(--radius-md)] bg-[#080808]">
-              <TransactionFlow />
+          {/* Verified Asset Dossier Card */}
+          <div className="p-8 sm:p-10 rounded border border-white/15 bg-[#0a0a0a] shadow-2xl space-y-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-white/10">
+              <div>
+                <div className="flex flex-wrap items-center gap-3 mb-2">
+                  <span className="px-2.5 py-0.5 rounded text-[11px] font-mono uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                    DATA STATUS: VERIFIED
+                  </span>
+                  <span className="text-[11px] font-mono text-neutral-400">
+                    Entity ID: Ruthmann STEIGER T 650 HF (2022)
+                  </span>
+                </div>
+                <h3 className="text-display-sm font-extralight text-white">
+                  Ruthmann STEIGER T 650 HF on Scania 8x4 (32t)
+                </h3>
+                <p className="text-body-sm text-neutral-400 font-light mt-1">
+                  65m Highflex truck-mounted access platform mounted on Scania P 450 XT 8x4 rigid chassis.
+                </p>
+              </div>
 
-              <div className="mt-12 pt-8 border-t border-[var(--color-border-dark)] grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <Button
+                  as="a"
+                  href="/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022"
+                  variant="primary"
+                  size="md"
+                >
+                  Inspect Full Asset Record →
+                </Button>
+              </div>
+            </div>
+
+            {/* Specifications Grid */}
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-3">
+                Verified Engineering Specifications
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 rounded bg-white/[0.02] border border-white/5 font-mono text-xs">
                 <div>
-                  <h3 className="text-heading-sm font-light text-white mb-2">01. TAFM Structures & Facilitates</h3>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed">
-                    We capture the complete asset record, supplier quotation, and business profile into a standardised, verifiable application file.
-                  </p>
+                  <span className="text-neutral-500 block">Working Height</span>
+                  <span className="text-white text-sm font-medium mt-0.5 block">65.0 m</span>
                 </div>
                 <div>
-                  <h3 className="text-heading-sm font-light text-white mb-2">02. Matching Is Not Approval</h3>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed">
-                    Matching reflects strict eligibility against published provider appetite criteria. It identifies participating providers with genuine appetite for the asset class.
-                  </p>
+                  <span className="text-neutral-500 block">Max Outreach</span>
+                  <span className="text-white text-sm font-medium mt-0.5 block">43.0 m</span>
                 </div>
                 <div>
-                  <h3 className="text-heading-sm font-light text-white mb-2">03. Independent Underwriting</h3>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed">
-                    Each participating finance provider retains independent credit authority, conducting direct KYC/AML checks, rate pricing, and final commercial underwriting.
-                  </p>
+                  <span className="text-neutral-500 block">Carrier Chassis</span>
+                  <span className="text-white text-sm font-medium mt-0.5 block">Scania 8x4 (32t)</span>
+                </div>
+                <div>
+                  <span className="text-neutral-500 block">Safety Certification</span>
+                  <span className="text-white text-sm font-medium mt-0.5 block">LOLER Valid</span>
                 </div>
               </div>
             </div>
+
+            {/* Real Market Observations Breakdown */}
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mb-3">
+                Empirical Market Observations (Strictly Separated)
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 rounded border border-emerald-500/30 bg-emerald-950/20">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-semibold block">
+                    AUCTION HAMMER RESULT (COMPLETED SALE)
+                  </span>
+                  <span className="text-display-sm font-extralight text-white font-mono block my-1">
+                    £620,000
+                  </span>
+                  <span className="text-caption text-neutral-400 block font-light">
+                    Euro Auctions Leeds · Verified Hammer Transcript (Ref: EA-LDS-2024-LOT-4412)
+                  </span>
+                </div>
+
+                <div className="p-5 rounded border border-amber-500/30 bg-amber-950/20">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold block">
+                    DEALER ASKING LISTING (ADVERTISED)
+                  </span>
+                  <span className="text-display-sm font-extralight text-white font-mono block my-1">
+                    £695,000
+                  </span>
+                  <span className="text-caption text-neutral-400 block font-light">
+                    PlantTrader UK · Commercial Dealer Advertised Price (Ref: PT-UK-882194)
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 p-4 rounded bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-caption font-light text-neutral-400">
+                <p>
+                  <strong className="text-neutral-300 font-normal">Valuation Governance:</strong> Insufficient verified repeat transaction pairs for an algorithmic valuation. Real observations are displayed independently without artificial conflation.
+                </p>
+                <Link href="/trust" className="text-orange-400 hover:text-orange-300 font-mono underline shrink-0">
+                  Our Data Standards →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          SECTION 5 — TRANSACTION FLOW
+      ══════════════════════════════════════════════════════════════════════ */}
+      <Section variant="dark-2" spacing="2xl" className="border-t border-white/10">
+        <Container>
+          <AnimateOnScroll>
+            <SectionHeading
+              as="h2"
+              size="display-md"
+              variant="dark"
+              eyebrow="The Transaction"
+              className="mb-16"
+              align="center"
+            >
+              How It Connects
+            </SectionHeading>
           </AnimateOnScroll>
 
-          <AnimateOnScroll className="text-center mt-12">
+          <AnimateOnScroll>
+            <TransactionFlow className="mt-4" />
+          </AnimateOnScroll>
+
+          <AnimateOnScroll className="text-center mt-16">
             <Button as="a" href="/how-it-works" variant="secondary" size="md">
-              Detailed 8-stage process guide
+              Understand the 9-Stage Transaction Process
             </Button>
           </AnimateOnScroll>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 4 — ASSET INTELLIGENCE SHOWCASE (Ruthmann STEIGER T 650 HF)
-      ══════════════════════════════════════════════════════════════════════ */}
-      <Section variant="dark" spacing="2xl" className="border-t border-[var(--color-border-dark)]">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left: Asset specification & overview */}
-            <div className="lg:col-span-6 space-y-6">
-              <AnimateOnScroll>
-                <div className="inline-flex items-center gap-2 px-3 py-1 border border-orange-500/40 bg-orange-500/10 rounded-sm mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
-                  <span className="text-caption font-mono uppercase tracking-wider text-orange-400">
-                    Flagship Verified Asset Record
-                  </span>
-                </div>
-
-                <h2 className="text-display-md font-extralight text-white leading-tight mb-2">
-                  Ruthmann STEIGER
-                  <br />
-                  <span className="text-[var(--color-text-on-dark-2)]">T 650 HF on Scania 8x4</span>
-                </h2>
-                <p className="text-body font-light text-[var(--color-text-on-dark-2)] leading-relaxed mb-6">
-                  65m highflex access platform mounted on a 32-tonne Scania chassis. Fully verified asset specification with documented manufacturer provenance and external market observations.
-                </p>
-
-                {/* Technical Specifications Grid */}
-                <div className="border border-[var(--color-border-dark)] rounded-sm p-6 bg-[#080808] space-y-4">
-                  <h3 className="text-label tracking-widest uppercase text-[var(--color-text-on-dark-muted)]">
-                    Verified Technical Specifications
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm font-light">
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Working Height</span>
-                      <span className="text-white font-mono text-base">65.0 m</span>
-                    </div>
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Max Outreach</span>
-                      <span className="text-white font-mono text-base">43.0 m</span>
-                    </div>
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Chassis / GVW</span>
-                      <span className="text-white font-mono text-base">Scania 8x4 (32t)</span>
-                    </div>
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Year of Manufacture</span>
-                      <span className="text-white font-mono text-base">2022</span>
-                    </div>
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Operating Hours</span>
-                      <span className="text-white font-mono text-base">1,450 hrs</span>
-                    </div>
-                    <div>
-                      <span className="block text-caption text-[var(--color-text-on-dark-muted)]">Inspection</span>
-                      <span className="text-emerald-400 font-mono text-base">Valid LOLER</span>
-                    </div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            </div>
-
-            {/* Right: Market Observations (Strictly Separated: AUCTION vs ASKING) */}
-            <div className="lg:col-span-6 space-y-6">
-              <AnimateOnScroll delay={100}>
-                <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#080808]">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-label tracking-widest uppercase text-white font-light">
-                      Market Observations
-                    </h3>
-                    <span className="text-caption font-mono text-[var(--color-text-on-dark-muted)]">
-                      PROVENANCE: EXTERNAL
-                    </span>
-                  </div>
-
-                  {/* Observation 1: Auction Result */}
-                  <div className="mb-6 p-5 border-l-2 border-emerald-500 bg-[#0d0d0d] rounded-r-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-mono tracking-wider uppercase text-emerald-400 font-medium">
-                        AUCTION RESULT (COMPLETED SALE)
-                      </span>
-                      <span className="text-caption font-mono text-[var(--color-text-on-dark-muted)]">
-                        June 2024
-                      </span>
-                    </div>
-                    <div className="text-display-sm font-extralight text-white font-mono my-1">
-                      £620,000
-                    </div>
-                    <p className="text-caption text-[var(--color-text-on-dark-3)] font-light">
-                      Source: Euro Auctions Leeds (Certified hammer price, Lot #4412). Reflects realised cash transaction at public commercial auction.
-                    </p>
-                  </div>
-
-                  {/* Observation 2: Asking Price */}
-                  <div className="mb-6 p-5 border-l-2 border-blue-500 bg-[#0d0d0d] rounded-r-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-mono tracking-wider uppercase text-blue-400 font-medium">
-                        ASKING PRICE (DEALER ADVERTISED)
-                      </span>
-                      <span className="text-caption font-mono text-[var(--color-text-on-dark-muted)]">
-                        September 2024
-                      </span>
-                    </div>
-                    <div className="text-display-sm font-extralight text-white font-mono my-1">
-                      £695,000
-                    </div>
-                    <p className="text-caption text-[var(--color-text-on-dark-3)] font-light">
-                      Source: PlantTrader UK dealer listing. Advertised commercial asking price; subject to dealer trade terms and bilateral negotiation.
-                    </p>
-                  </div>
-
-                  {/* Valuation Confidence Disclaimer — MANDATORY ASSET FINANCE RULE */}
-                  <div className="p-4 border border-amber-500/30 bg-amber-500/5 rounded-sm">
-                    <p className="text-caption text-amber-300 font-light leading-relaxed">
-                      <strong>Valuation Notice:</strong> Insufficient verified transaction data for a formal valuation.
-                      TAFM presents real individual market observations but does not invent a synthetic automated valuation until robust statistical confidence thresholds are met. An asking price is never conflated with a sale price.
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-3">
-                    <Button as="a" href="/assets/specialist-equipment" variant="secondary" size="sm">
-                      View specialist category
-                    </Button>
-                    <Button as="a" href="/apply" variant="primary" size="sm">
-                      Finance this asset type
-                    </Button>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 5 — FINANCE BUILT AROUND THE ASSET
+          SECTION 6 — FINANCE STRUCTURES
       ══════════════════════════════════════════════════════════════════════ */}
       <Section variant="light" spacing="2xl">
         <Container>
-          <div className="max-w-3xl mb-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <AnimateOnScroll>
               <SectionHeading
                 as="h2"
                 size="display-md"
                 variant="light"
-                eyebrow="Commercial Structures"
-                subtitle="Understanding available financing structures is the foundation of capital equipment acquisition."
+                eyebrow="Commercial Financing Structures"
+                subtitle="Understanding ownership mechanics and tax treatment is the starting point of capital planning."
+                className="mb-0"
               >
-                Finance built around the asset.
+                How Assets Are Financed
               </SectionHeading>
+            </AnimateOnScroll>
+
+            <AnimateOnScroll delay={80}>
+              <Link
+                href="/finance"
+                className="text-body-sm text-neutral-700 hover:text-orange-600 transition-colors font-light underline underline-offset-4"
+              >
+                Compare full comparison matrix →
+              </Link>
             </AnimateOnScroll>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-[var(--color-border-light)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {FINANCE_STRUCTURES.map((structure, index) => (
               <AnimateOnScroll key={structure.type} delay={index * 50}>
-                <div className="p-8 lg:p-10 border-b border-r border-[var(--color-border-light)] hover:bg-orange-50/10 transition-colors flex flex-col justify-between h-full">
+                <div className="p-8 rounded border border-neutral-200 bg-white hover:border-orange-500/50 transition-colors shadow-sm flex flex-col justify-between h-full">
                   <div>
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-1 h-7 bg-orange-500 flex-shrink-0 mt-1 rounded-full" aria-hidden="true" />
-                      <div>
-                        <h3 className="text-heading-lg font-light text-[var(--color-text-on-light-primary)]">
-                          {structure.type}
-                        </h3>
-                        <p className="text-body-sm font-medium text-orange-600 mt-1">
-                          {structure.headline}
-                        </p>
-                      </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[11px] font-mono uppercase text-orange-600 font-semibold">
+                        {structure.highlight}
+                      </span>
+                      <span className="text-[11px] font-mono text-neutral-400">
+                        UK Commercial Structure
+                      </span>
                     </div>
-                    <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed mb-4 pl-5">
+
+                    <h3 className="text-heading-lg font-light text-neutral-900 mb-3">
+                      {structure.type}
+                    </h3>
+
+                    <p className="text-body-sm font-light text-neutral-600 leading-relaxed mb-4">
                       {structure.description}
                     </p>
-                    <p className="text-caption font-light text-[var(--color-text-on-light-muted)] pl-5 mb-6">
+
+                    <p className="text-caption font-light text-neutral-500 leading-relaxed">
                       {structure.detail}
                     </p>
                   </div>
 
-                  <div className="pl-5 pt-4 border-t border-[var(--color-border-light)]/60">
+                  <div className="pt-6 mt-6 border-t border-neutral-100 flex items-center justify-between">
                     <Link
                       href={`/finance/${structure.slug}`}
-                      className="inline-flex items-center gap-1.5 text-body-sm text-orange-600 hover:text-orange-700 font-light group"
+                      className="text-body-sm font-medium text-orange-600 hover:text-orange-700 underline underline-offset-4"
                     >
-                      {structure.type} guide & considerations
-                      <span className="transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+                      Read {structure.type} Guide →
                     </Link>
+                    <Button as="a" href={`/apply?structure=${encodeURIComponent(structure.type)}`} variant="outline" size="sm">
+                      Apply
+                    </Button>
                   </div>
                 </div>
               </AnimateOnScroll>
             ))}
           </div>
-
-          {/* Important regulatory callout */}
-          <AnimateOnScroll className="mt-12 p-6 border border-[var(--color-border-light)] rounded-[var(--radius-sm)] bg-[var(--color-surface-light)]">
-            <p className="text-body-sm font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-              <strong className="font-medium text-[var(--color-text-on-light-primary)]">Commercial Availability:</strong> Different structures suit different asset depreciation curves and corporate tax positions. Not every structure is available for every asset type or borrower profile. TAFM provides informational guides and deterministic criteria matching, not regulated financial or tax advice.
-            </p>
-          </AnimateOnScroll>
-
-          <AnimateOnScroll className="mt-8 flex flex-wrap gap-4">
-            <Button as="a" href="/finance" variant="outline" size="md">
-              Compare all finance structures
-            </Button>
-            <Button as="a" href="/finance-calculator" variant="ghost" size="md">
-              Indicative finance calculator
-            </Button>
-          </AnimateOnScroll>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 6 — THREE SIDES OF THE PLATFORM
+          SECTION 7 — COMMERCIAL PATHWAYS (BUSINESS / SUPPLIER / PROVIDER)
       ══════════════════════════════════════════════════════════════════════ */}
-      <Section variant="dark-3" spacing="2xl">
+      <Section variant="dark-3" spacing="2xl" className="border-t border-white/10">
         <Container>
-          <div className="max-w-3xl mb-16">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="display-md"
-                variant="dark"
-                eyebrow="Marketplace Triad"
-                subtitle="TAFM aligns the three parties essential to every commercial equipment transaction."
-              >
-                Three sides of the platform.
-              </SectionHeading>
-            </AnimateOnScroll>
+          <div className="mb-16 text-center max-w-2xl mx-auto">
+            <span className="text-label text-orange-400 font-mono uppercase tracking-widest">
+              Three Commercial Pathways
+            </span>
+            <h2 className="text-display-md font-extralight text-white mt-2">
+              Who TAFM Connects
+            </h2>
+            <p className="text-body text-neutral-400 font-light mt-2">
+              Dedicated infrastructure designed for each participant in UK equipment financing.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* For Businesses */}
-            <AnimateOnScroll delay={40}>
-              <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#090909] flex flex-col justify-between h-full">
-                <div>
-                  <div className="w-10 h-10 rounded-sm border border-orange-500/40 bg-orange-500/10 flex items-center justify-center mb-6">
-                    <span className="text-orange-400 font-mono text-xs">01</span>
-                  </div>
-                  <h3 className="text-heading-lg font-light text-white mb-2">
-                    For Businesses
-                  </h3>
-                  <p className="text-body-sm font-medium text-orange-400 mb-4">
-                    Find finance for the asset you need.
-                  </p>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed mb-6">
-                    Explore verified machinery records, structure your requirement parameters, and submit one comprehensive application. Your requirement is assessed by participating specialist lenders without fragmented negotiations.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-[var(--color-border-dark)]">
-                  <Button as="a" href="/apply" variant="primary" size="md" fullWidth>
-                    Start an Application
-                  </Button>
-                </div>
+            {/* Pathway 1: For Businesses */}
+            <div className="p-8 rounded border border-white/10 bg-[#0a0a0a] flex flex-col justify-between space-y-6">
+              <div>
+                <span className="text-caption font-mono uppercase text-neutral-400 block mb-2">Pathway 01</span>
+                <h3 className="text-heading-lg font-light text-white mb-3">For Businesses</h3>
+                <p className="text-body-sm text-neutral-300 font-light leading-relaxed mb-4">
+                  Acquire mission-critical machinery and vehicles without depleting your operating liquidity. One structured application is assessed by pre-matched UK lenders with verified appetite.
+                </p>
+                <ul className="space-y-2 text-caption text-neutral-400 font-light">
+                  <li>• Fixed monthly payments protecting cash flow</li>
+                  <li>• Suitable for new and pre-owned machinery</li>
+                  <li>• Tax-efficient structures & capital allowances</li>
+                </ul>
               </div>
-            </AnimateOnScroll>
+              <Button as="a" href="/apply" variant="primary" fullWidth size="md">
+                Start an Application
+              </Button>
+            </div>
 
-            {/* For Suppliers */}
-            <AnimateOnScroll delay={80}>
-              <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#090909] flex flex-col justify-between h-full">
-                <div>
-                  <div className="w-10 h-10 rounded-sm border border-white/20 bg-white/5 flex items-center justify-center mb-6">
-                    <span className="text-white/60 font-mono text-xs">02</span>
-                  </div>
-                  <h3 className="text-heading-lg font-light text-white mb-2">
-                    For Suppliers
-                  </h3>
-                  <p className="text-body-sm font-medium text-white/80 mb-4">
-                    Keep finance inside the sale.
-                  </p>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed mb-6">
-                    Help your customers access asset-backed funding with your quotation at the core of the application. You remain the supplier of record, maintain sale terms, and avoid managing multiple lender relationships.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-[var(--color-border-dark)]">
-                  <Button as="a" href="/for-suppliers" variant="secondary" size="md" fullWidth>
-                    For Suppliers
-                  </Button>
-                </div>
+            {/* Pathway 2: For Suppliers */}
+            <div className="p-8 rounded border border-white/10 bg-[#0a0a0a] flex flex-col justify-between space-y-6">
+              <div>
+                <span className="text-caption font-mono uppercase text-neutral-400 block mb-2">Pathway 02</span>
+                <h3 className="text-heading-lg font-light text-white mb-3">For Suppliers & OEMs</h3>
+                <p className="text-body-sm text-neutral-300 font-light leading-relaxed mb-4">
+                  Turn finance into part of your sales cycle. When prospective equipment buyers face upfront capital constraints, integrate TAFM to close sales without managing lender agencies.
+                </p>
+                <ul className="space-y-2 text-caption text-neutral-400 font-light">
+                  <li>• Remain the supplier of record on every deal</li>
+                  <li>• Zero lender relationship overhead</li>
+                  <li>• Direct commercial settlement on transaction</li>
+                </ul>
               </div>
-            </AnimateOnScroll>
+              <Button as="a" href="/for-suppliers" variant="secondary" fullWidth size="md">
+                Supplier Proposition
+              </Button>
+            </div>
 
-            {/* For Finance Providers */}
-            <AnimateOnScroll delay={120}>
-              <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#090909] flex flex-col justify-between h-full">
-                <div>
-                  <div className="w-10 h-10 rounded-sm border border-white/20 bg-white/5 flex items-center justify-center mb-6">
-                    <span className="text-white/60 font-mono text-xs">03</span>
-                  </div>
-                  <h3 className="text-heading-lg font-light text-white mb-2">
-                    For Finance Providers
-                  </h3>
-                  <p className="text-body-sm font-medium text-white/80 mb-4">
-                    Structured asset-backed demand.
-                  </p>
-                  <p className="text-body-sm font-light text-[var(--color-text-on-dark-3)] leading-relaxed mb-6">
-                    Receive verified submissions containing equipment specifications, supplier quotes, borrower accounts, and auditable criteria matching. You retain complete underwriting authority and commercial terms control.
-                  </p>
-                </div>
-                <div className="pt-6 border-t border-[var(--color-border-dark)]">
-                  <Button as="a" href="/for-lenders" variant="secondary" size="md" fullWidth>
-                    For Finance Providers
-                  </Button>
-                </div>
+            {/* Pathway 3: For Finance Providers */}
+            <div className="p-8 rounded border border-white/10 bg-[#0a0a0a] flex flex-col justify-between space-y-6">
+              <div>
+                <span className="text-caption font-mono uppercase text-neutral-400 block mb-2">Pathway 03</span>
+                <h3 className="text-heading-lg font-light text-white mb-3">For Finance Providers</h3>
+                <p className="text-body-sm text-neutral-300 font-light leading-relaxed mb-4">
+                  Access standardized, asset-backed commercial borrowing demand. Submissions include verified equipment specs, supplier pro-formas, and corporate KYC data matched to your criteria.
+                </p>
+                <ul className="space-y-2 text-caption text-neutral-400 font-light">
+                  <li>• Deterministic criteria-based deal matching</li>
+                  <li>• 100% provider underwriting & credit autonomy</li>
+                  <li>• Digital API and portal deal delivery</li>
+                </ul>
               </div>
-            </AnimateOnScroll>
+              <Button as="a" href="/for-lenders" variant="secondary" fullWidth size="md">
+                Institutional Proposition
+              </Button>
+            </div>
           </div>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 7 — ASSET LIFECYCLE
+          SECTION 8 — ASSET LIFECYCLE
       ══════════════════════════════════════════════════════════════════════ */}
       <Section variant="dark" spacing="2xl">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(255,106,26,0.05) 0%, transparent 70%)',
-          }}
-        />
+        <Container>
+          <AnimateOnScroll>
+            <SectionHeading
+              as="h2"
+              size="display-md"
+              variant="dark"
+              eyebrow="The Asset Lifecycle"
+              subtitle="Capital machinery has an economic lifecycle. TAFM is engineered to support your business at each milestone."
+              className="mb-16"
+              align="center"
+            >
+              Beyond The Initial Acquisition
+            </SectionHeading>
+          </AnimateOnScroll>
 
-        <Container className="relative">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <AnimateOnScroll>
-              <p className="text-label text-[var(--color-text-on-dark-muted)] tracking-widest uppercase mb-4">
-                Full Lifecycle Perspective
-              </p>
-              <h2 className="text-display-md font-extralight text-white mb-6">
-                Beyond the transaction
-              </h2>
-              <p className="text-body-lg font-light text-[var(--color-text-on-dark-2)] leading-relaxed">
-                TAFM is building an infrastructure layer around the entire asset lifecycle — supporting equipment from origination to secondary remarketing.
-              </p>
-            </AnimateOnScroll>
-          </div>
-
-          {/* Lifecycle stages */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" role="list">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {LIFECYCLE_STAGES.map((stage, index) => (
-              <AnimateOnScroll key={stage.label} delay={index * 60} role="listitem">
-                <div className="p-6 border border-[var(--color-border-dark)] rounded-sm bg-[#080808] flex flex-col items-center text-center h-full hover:border-orange-500/40 transition-colors">
-                  <span className="text-caption font-mono text-orange-400 mb-2">{stage.step}</span>
-                  <h3 className="text-body font-light text-white mb-2">{stage.label}</h3>
-                  <p className="text-caption font-light text-[var(--color-text-on-dark-3)] leading-relaxed">
+              <AnimateOnScroll key={stage.label} delay={index * 60}>
+                <div className="p-5 rounded border border-white/10 bg-white/[0.02] flex flex-col items-center text-center group hover:border-orange-500/50 transition-colors h-full">
+                  <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center mb-3 group-hover:border-orange-500 transition-colors">
+                    <span className="text-caption font-mono text-neutral-400">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+                  <h3 className="text-body font-normal text-white mb-1.5">{stage.label}</h3>
+                  <p className="text-caption text-neutral-400 font-light leading-relaxed">
                     {stage.description}
                   </p>
                 </div>
               </AnimateOnScroll>
             ))}
           </div>
-
-          <AnimateOnScroll className="mt-12 text-center">
-            <p className="text-caption font-light text-[var(--color-text-on-dark-muted)] max-w-xl mx-auto">
-              Notice: TAFM is progressively developing its lifecycle infrastructure. While initial focus is commercial origination and matching, our data models are engineered for ongoing residual tracking.
-            </p>
-          </AnimateOnScroll>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 8 — TRUST & TRANSPARENCY PREVIEW
+          SECTION 9 — TRUST & TRANSPARENCY
       ══════════════════════════════════════════════════════════════════════ */}
-      <Section variant="light" spacing="2xl">
+      <Section variant="light" spacing="2xl" className="border-t border-neutral-200">
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-6 space-y-6">
-              <AnimateOnScroll>
-                <p className="text-label tracking-widest uppercase text-[var(--color-text-on-light-muted)]">
-                  Data Governance
-                </p>
-                <h2 className="text-display-md font-extralight text-[var(--color-text-on-light-primary)] leading-tight">
-                  Truthful by design.
-                  <br />
-                  Data provenance first.
-                </h2>
-                <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed">
-                  TAFM’s credibility rests on rigorous data classification. Every material data point is explicitly tagged as Verified, Known, Inferred, or Unknown.
-                </p>
-                <ul className="space-y-3 font-light text-body-sm text-[var(--color-text-on-light-3)]" role="list">
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Asking prices vs Sale prices:</strong> Never combined or conflated into artificial values.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>Deterministic criteria:</strong> Lenders evaluate versioned, auditable underwriting rules.</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-2 flex-shrink-0" aria-hidden="true" />
-                    <span><strong>AI Boundaries:</strong> AI assists with document extraction, not automated credit decisions.</span>
-                  </li>
-                </ul>
-                <div className="pt-4">
-                  <Button as="a" href="/trust" variant="outline" size="md">
-                    Read our Trust & Data methodology
-                  </Button>
-                </div>
-              </AnimateOnScroll>
+          <div className="p-8 sm:p-12 rounded border border-neutral-200 bg-white shadow-sm flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+            <div className="space-y-4 max-w-2xl">
+              <span className="text-label text-neutral-500 uppercase font-mono tracking-widest">
+                Data Integrity
+              </span>
+              <h2 className="text-heading-xl font-light text-neutral-900">
+                Grounding Commercial Finance in Verified Facts
+              </h2>
+              <p className="text-body-sm text-neutral-600 font-light leading-relaxed">
+                TAFM maintains an immutable distinction between verified facts and computational inferences. We record four explicit data states (`VERIFIED`, `KNOWN`, `INFERRED`, `UNKNOWN`) and never treat asking prices as completed sales.
+              </p>
+              <div className="flex flex-wrap gap-2 text-[11px] font-mono">
+                <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">VERIFIED</span>
+                <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">KNOWN</span>
+                <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">INFERRED</span>
+                <span className="px-2 py-0.5 rounded bg-neutral-100 text-neutral-700 border border-neutral-200">UNKNOWN</span>
+              </div>
             </div>
 
-            <div className="lg:col-span-6">
-              <AnimateOnScroll delay={100}>
-                <div className="p-8 border border-[var(--color-border-light)] rounded-sm bg-[var(--color-surface-off-white)] space-y-6">
-                  <h3 className="text-label tracking-widest uppercase text-[var(--color-text-on-light-muted)]">
-                    TAFM Data Classification Standard
-                  </h3>
-                  <div className="space-y-4 font-mono text-xs">
-                    <div className="p-3 border border-emerald-300 bg-emerald-50/50 rounded-sm">
-                      <span className="text-emerald-800 font-semibold">VERIFIED</span>
-                      <p className="font-sans text-[var(--color-text-on-light-2)] mt-1">Confirmed directly by manufacturer specification or certified auction transcript.</p>
-                    </div>
-                    <div className="p-3 border border-blue-300 bg-blue-50/50 rounded-sm">
-                      <span className="text-blue-800 font-semibold">KNOWN</span>
-                      <p className="font-sans text-[var(--color-text-on-light-2)] mt-1">Documented dealer asking price or published provider appetite criteria.</p>
-                    </div>
-                    <div className="p-3 border border-amber-300 bg-amber-50/50 rounded-sm">
-                      <span className="text-amber-800 font-semibold">INFERRED</span>
-                      <p className="font-sans text-[var(--color-text-on-light-2)] mt-1">Calculated indicative amortization or statistical range with stated confidence.</p>
-                    </div>
-                    <div className="p-3 border border-gray-300 bg-gray-50/50 rounded-sm">
-                      <span className="text-gray-800 font-semibold">UNKNOWN</span>
-                      <p className="font-sans text-[var(--color-text-on-light-2)] mt-1">Explicitly marked when market observation volume is insufficient for valuation.</p>
-                    </div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
+            <div className="shrink-0 space-y-3">
+              <Button as="a" href="/trust" variant="outline" size="md">
+                Read Data Governance Standards →
+              </Button>
             </div>
           </div>
         </Container>
       </Section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          SECTION 9 — FINAL CTA
+          SECTION 10 — FINAL CTA
       ══════════════════════════════════════════════════════════════════════ */}
-      <Section variant="dark-2" spacing="2xl">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          aria-hidden="true"
-          style={{
-            background: 'radial-gradient(ellipse 50% 60% at 50% 50%, rgba(255,106,26,0.08) 0%, transparent 70%)',
-          }}
-        />
+      <Section variant="dark-2" spacing="2xl" className="border-t border-white/10">
+        <Container className="text-center max-w-3xl mx-auto space-y-6">
+          <span className="text-label text-neutral-400 font-mono uppercase tracking-widest">
+            Ready to Begin
+          </span>
+          <h2 className="text-display-xl font-extralight text-white tracking-[0.03em]">
+            Finance the asset.
+          </h2>
+          <p className="text-body-lg text-neutral-300 font-light leading-relaxed max-w-xl mx-auto">
+            Start your asset finance application. One submission, structured for assessment by specialist UK finance providers.
+          </p>
 
-        <Container className="relative text-center">
-          <AnimateOnScroll>
-            <p className="text-label text-[var(--color-text-on-dark-muted)] tracking-widest uppercase mb-6">
-              Start Your Requirement
-            </p>
-            <h2 className="text-display-xl font-extralight text-white tracking-[0.03em] mb-4">
-              Finance the asset.
-            </h2>
-            <p className="text-body-lg font-light text-[var(--color-text-on-dark-2)] max-w-xl mx-auto leading-relaxed mb-10">
-              One application. Structured asset intelligence. Assessed by specialist asset finance providers.
-            </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <Button as="a" href="/apply" variant="primary" size="lg">
+              Start an Application
+            </Button>
+            <Button as="a" href="/finance-calculator" variant="secondary" size="lg">
+              Illustrative Calculator
+            </Button>
+          </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Button as="a" href="/apply" variant="primary" size="lg">
-                Start an Application
-              </Button>
-              <Button as="a" href="/finance-calculator" variant="secondary" size="lg">
-                Finance Calculator
-              </Button>
-            </div>
+          <Divider variant="dark" spacing="lg" className="max-w-xs mx-auto" />
 
-            <Divider variant="dark" spacing="lg" className="max-w-xs mx-auto" />
-
-            <p className="text-caption text-[var(--color-text-on-dark-muted)] font-light max-w-md mx-auto leading-relaxed">
-              Finance subject to status and eligibility. TAFM is a commercial infrastructure and marketplace platform. Credit decisions are made independently by participating finance providers.
-            </p>
-          </AnimateOnScroll>
+          <p className="text-caption text-neutral-500 font-light max-w-md mx-auto leading-relaxed">
+            Finance subject to status and eligibility. TAFM is a commercial marketplace platform and does not provide financial or lending advice.
+          </p>
         </Container>
       </Section>
     </>

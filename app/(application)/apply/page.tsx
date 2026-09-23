@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Section } from '@/components/layout/Section'
 import { Container } from '@/components/layout/Container'
 import { Button } from '@/components/ui/Button'
@@ -332,11 +333,33 @@ interface ApplicationData {
 
 // ─── Apply page ───────────────────────────────────────────────────────────────
 
-export default function ApplyPage() {
+function ApplyForm() {
+  const searchParams = useSearchParams()
   const [currentStep, setCurrentStep] = useState(0)
   const [data, setData] = useState<Partial<ApplicationData>>({
     assetCondition: 'USED',
   })
+
+  useEffect(() => {
+    const category = searchParams.get('category')
+    const asset = searchParams.get('asset')
+    const structure = searchParams.get('structure')
+
+    const updates: Partial<ApplicationData> = {}
+    if (category) updates.assetCategory = category
+    if (asset) updates.assetDescription = asset
+    if (structure) {
+      const s = structure.toLowerCase()
+      if (s.includes('hire purchase')) updates.financeType = 'HIRE_PURCHASE'
+      else if (s.includes('finance lease')) updates.financeType = 'FINANCE_LEASE'
+      else if (s.includes('operating lease')) updates.financeType = 'OPERATING_LEASE'
+      else if (s.includes('refinance')) updates.financeType = 'ASSET_REFINANCE'
+    }
+    if (Object.keys(updates).length > 0) {
+      setData((prev) => ({ ...prev, ...updates }))
+    }
+  }, [searchParams])
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -504,5 +527,13 @@ export default function ApplyPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ApplyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505]" />}>
+      <ApplyForm />
+    </Suspense>
   )
 }

@@ -8,180 +8,147 @@ import { Breadcrumbs } from '@/components/seo/Breadcrumbs'
 import { Button } from '@/components/ui/Button'
 import { generateMetadata } from '@/lib/seo/metadata'
 
-// Publication gate: noindex until genuine editorial content is published
-export const metadata: Metadata = {
-  ...generateMetadata({
-    title: 'TAFM Insights — Market Commentary & Asset Intelligence',
-    description:
-      'The TAFM publication hub — research, market observations, finance structure guides, and sector commentary for UK capital equipment.',
-    canonical: '/insights',
-  }),
-  robots: {
-    index: false,
-    follow: true,
-  },
-}
+export const metadata: Metadata = generateMetadata({
+  title: 'Insights & Editorial Architecture | UK Asset Finance Intelligence',
+  description:
+    'TAFM Editorial Hub — structured commentary, market observations, finance structure analysis, and transaction intelligence across UK commercial equipment sectors.',
+  canonical: '/insights',
+  robots: 'noindex, follow', // Deliberate publication gate: unindexed until genuine editorial articles are published
+})
 
-const PUBLICATION_CATEGORIES = [
+const EDITORIAL_PILLARS = [
   {
-    name: 'Asset Finance',
-    description: 'Macro developments, lender appetite trends, interest rate environments, and regulatory policy across UK commercial asset lending.',
-    topics: ['Lender appetite trends', 'Bank of England rate impacts', 'Regulatory governance & FCA updates'],
+    category: 'Asset Finance',
+    tagline: 'Lending Market Analysis & Commercial Trends',
+    scope: 'In-depth coverage of UK commercial lending liquidity, interest rate benchmark developments, capital allowance legislative shifts, and SME financing availability.',
   },
   {
-    name: 'Asset Intelligence',
-    description: 'Deep dives into machinery depreciation curves, maintenance indicators, and secondary equipment resale performance.',
-    topics: ['Equipment depreciation models', 'Highflex access platform longevity', 'Commercial vehicle residual trends'],
+    category: 'Market Intelligence',
+    tagline: 'Secondary Equipment Values & Auction Trends',
+    scope: 'Empirical reports comparing auction hammer prices, dealer asking premiums, and residual value depreciation curves across plant, commercial transport, and industrial machinery.',
   },
   {
-    name: 'Market Observations',
-    description: 'Empirical data analysis from UK commercial auctions, verified dealer asking prices, and realized transaction benchmarks.',
-    topics: ['Auction hammer price analysis', 'Dealer margin compression', 'Secondary market liquidity reports'],
+    category: 'Asset Intelligence',
+    tagline: 'Engineering Specs, Telematics & Provenance',
+    scope: 'Technical breakdowns of OEM model innovations, electrification of heavy equipment, stage-V emissions compliance, and digital machine verification.',
   },
   {
-    name: 'Finance Structures',
-    description: 'Technical guidance comparing Hire Purchase, Finance Lease, Operating Lease, and Sale & Leaseback under UK tax law.',
-    topics: ['Full Expensing & Capital Allowances', 'VAT deferral mechanisms', 'IFRS 16 lease accounting guides'],
+    category: 'Finance Structures',
+    tagline: 'Structural Guides & Accounting Analysis',
+    scope: 'Expert examination of Hire Purchase, Finance Lease, Operating Lease, and Refinance mechanics under UK GAAP, FRS 102, and IFRS 16.',
   },
   {
-    name: 'Industry Sectors',
-    description: 'Sector-specific capital expenditure dynamics in Construction, Manufacturing, Agriculture, Transport, and Medical equipment.',
-    topics: ['Civil engineering plant replacement', 'British manufacturing automation', 'Agricultural seasonal credit cycles'],
+    category: 'Industry Sectors',
+    tagline: 'Sector-Specific Capital Equipment Demand',
+    scope: 'Dedicated commentary on construction, haulage, precision manufacturing, agriculture, renewable energy, and healthcare capital investments.',
   },
   {
-    name: 'Transactions',
-    description: 'Anonymised case studies examining how capital equipment acquisitions were structured, underwritten, and funded.',
-    topics: ['Refinancing civil fleets', 'Structuring high-ticket access platforms', 'Factory automation deployment'],
+    category: 'Transaction Intelligence',
+    tagline: 'Deal Structuring & Underwriting Dynamics',
+    scope: 'Insights into lender appetite configurations, credit committee expectations, documentation quality, and transaction turnaround velocity.',
   },
   {
-    name: 'TAFM Platform',
-    description: 'Platform infrastructure updates, criteria versioning improvements, and pilot operational milestones.',
-    topics: ['Deterministic matching enhancements', 'Data provenance standards', 'Provider network expansions'],
+    category: 'TAFM Platform',
+    tagline: 'Marketplace Engineering & Data Standards',
+    scope: 'Technical documentation detailing our deterministic criteria matching, data provenance tracking, and API integrations with UK lending desks.',
   },
 ]
 
 export default function InsightsPage() {
   return (
     <>
-      {/* Hero */}
+      {/* ── 1. CINEMATIC HERO ────────────────────────────────────────────── */}
       <Section variant="dark" spacing="2xl" className="pt-32">
         <Container>
           <Breadcrumbs
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Insights', current: true },
-            ]}
+            items={[{ label: 'Home', href: '/' }, { label: 'Insights', current: true }]}
             variant="dark"
-            className="mb-12"
+            className="mb-8"
           />
+
           <AnimateOnScroll>
             <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 border border-white/10 bg-white/5 rounded-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
               <span className="text-caption font-mono uppercase tracking-wider text-white/70">
-                Editorial Hub
+                TAFM Editorial Publication
               </span>
             </div>
+
             <SectionHeading
               as="h1"
               size="display-xl"
               variant="dark"
-              eyebrow="TAFM Intelligence"
-              subtitle="Data-led analysis, structural finance guides, and market observations on UK capital equipment."
+              eyebrow="Marketplace Knowledge Hub"
             >
-              Knowledge & perspective.
+              The TAFM
+              <br />
+              Knowledge Hub.
             </SectionHeading>
+
+            <p className="text-body-lg font-light text-neutral-300 max-w-3xl leading-relaxed mt-4">
+              TAFM is committed to substantive, evidence-based commentary on the UK asset finance market. We do not publish mass AI-generated SEO articles. Every piece in our forthcoming publication is authored by industrial equipment and asset finance specialists.
+            </p>
           </AnimateOnScroll>
         </Container>
       </Section>
 
-      {/* Editorial Methodology Notice */}
-      <Section variant="light" spacing="none" className="pt-16 pb-12 border-b border-[var(--color-border-light)]">
-        <Container>
-          <div className="p-8 border-l-4 border-orange-500 bg-[var(--color-surface-off-white)] rounded-r-sm">
-            <span className="text-caption font-mono uppercase tracking-wider text-orange-600 block mb-1">
-              Publication Policy
-            </span>
-            <h2 className="text-heading-md font-light text-[var(--color-text-on-light-primary)] mb-2">
-              Genuine Editorial Standards — No Synthetic Filler
-            </h2>
-            <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed max-w-3xl">
-              TAFM does not publish auto-generated AI articles or generic filler blog posts. Our publication hub is engineered to host authoritative, data-backed reports anchored in verified auction records and specialist underwriting insights. Articles will be published as empirical datasets and verified case studies mature.
-            </p>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Publication Structure Across 7 Pillars */}
+      {/* ── 2. EDITORIAL PILLARS ──────────────────────────────────────────── */}
       <Section variant="light" spacing="2xl">
         <Container>
-          <AnimateOnScroll className="mb-16">
-            <SectionHeading
-              as="h2"
-              size="heading-xl"
-              variant="light"
-              eyebrow="Editorial Pillars"
-            >
-              Publication Structure
-            </SectionHeading>
-            <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed max-w-2xl">
-              TAFM Intelligence reports will be organized across seven core subject domains:
+          <div className="mb-12">
+            <span className="text-label text-neutral-500 uppercase font-mono tracking-widest">
+              Publication Scope
+            </span>
+            <h2 className="text-heading-xl font-light text-neutral-900 mt-2">
+              The Seven Editorial Pillars
+            </h2>
+            <p className="text-body text-neutral-600 font-light mt-1">
+              Our editorial pipeline covers seven distinct domains across UK business finance and industrial equipment:
             </p>
-          </AnimateOnScroll>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PUBLICATION_CATEGORIES.map((cat, i) => (
-              <AnimateOnScroll key={cat.name} delay={i * 40}>
-                <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-white h-full flex flex-col justify-between hover:border-orange-500/40 transition-colors">
-                  <div>
-                    <span className="text-[10px] font-mono text-orange-600 mb-2 block uppercase">
-                      PILLAR 0{i + 1}
-                    </span>
-                    <h3 className="text-heading-sm font-light text-[var(--color-text-on-light-primary)] mb-2">
-                      {cat.name}
-                    </h3>
-                    <p className="text-body-sm font-light text-[var(--color-text-on-light-2)] leading-relaxed mb-4">
-                      {cat.description}
-                    </p>
-
-                    <div className="pt-3 border-t border-[var(--color-border-light)]/60">
-                      <span className="text-[11px] font-mono text-[var(--color-text-on-light-muted)] block mb-1.5 uppercase">
-                        Planned Focus Areas:
-                      </span>
-                      <ul className="space-y-1">
-                        {cat.topics.map((t) => (
-                          <li key={t} className="text-caption font-light text-[var(--color-text-on-light-3)] flex items-center gap-1.5">
-                            <span className="w-1 h-1 rounded-full bg-orange-400" aria-hidden="true" />
-                            <span>{t}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+            {EDITORIAL_PILLARS.map((pillar) => (
+              <div
+                key={pillar.category}
+                className="p-6 rounded border border-neutral-200 bg-white hover:border-orange-500/50 transition-colors shadow-sm flex flex-col justify-between"
+              >
+                <div>
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-orange-600 font-semibold block mb-1">
+                    {pillar.category}
+                  </span>
+                  <h3 className="text-body font-medium text-neutral-900 mb-2">
+                    {pillar.tagline}
+                  </h3>
+                  <p className="text-body-sm font-light text-neutral-600 leading-relaxed">
+                    {pillar.scope}
+                  </p>
                 </div>
-              </AnimateOnScroll>
+              </div>
             ))}
           </div>
 
-          {/* Action CTAs */}
-          <AnimateOnScroll className="mt-16 pt-12 border-t border-[var(--color-border-light)] text-center">
-            <h3 className="text-heading-md font-light text-[var(--color-text-on-light-primary)] mb-3">
-              Explore Available Commercial Tools
+          {/* Publication Gate Staging Notice */}
+          <div className="mt-12 p-8 rounded border border-neutral-200 bg-neutral-50 text-center max-w-2xl mx-auto space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-amber-100 text-amber-900 font-mono text-xs uppercase">
+              <span>ⓘ</span>
+              <span>Editorial Governance Notice</span>
+            </div>
+            <h3 className="text-heading-md font-light text-neutral-900">
+              Editorial Pipeline in Staging
             </h3>
-            <p className="text-body-sm font-light text-[var(--color-text-on-light-2)] max-w-lg mx-auto mb-8">
-              While editorial pieces are in curation, our commercial finance structures, equipment category guides, and interactive calculators are live and accessible.
+            <p className="text-body-sm font-light text-neutral-600 leading-relaxed">
+              In accordance with TAFM’s Data Truth and Publication Gate policies, this publication remains unindexed until our initial cohort of verified industry case studies, market data analyses, and legal structure commentaries completes peer review.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="pt-2 flex flex-wrap justify-center gap-3">
               <Button as="a" href="/finance" variant="primary" size="md">
                 Explore Finance Structures
               </Button>
-              <Button as="a" href="/finance-calculator" variant="outline" size="md">
-                Indicative Calculator
-              </Button>
-              <Button as="a" href="/trust" variant="ghost" size="md">
-                Data Methodology
+              <Button as="a" href="/assets" variant="outline" size="md">
+                Browse Asset Taxonomy
               </Button>
             </div>
-          </AnimateOnScroll>
+          </div>
         </Container>
       </Section>
     </>
