@@ -40,6 +40,7 @@ export type AuditEntityType =
   | 'OpportunityProvider'
   | 'ProviderMembership'
   | 'OrganisationMembership'
+  | 'PilotFeedback'
 
 export type AuditActionType =
   | 'CREATE'

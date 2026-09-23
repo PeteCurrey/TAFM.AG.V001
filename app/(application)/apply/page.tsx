@@ -9,6 +9,8 @@ import { FormField } from '@/components/forms/FormField'
 import { Input } from '@/components/forms/Input'
 import { CurrencyInput } from '@/components/forms/CurrencyInput'
 import { Select } from '@/components/forms/Select'
+import { submitApplication } from '@/app/actions/apply'
+import Link from 'next/link'
 
 // ─── Application steps ────────────────────────────────────────────────────────
 
@@ -17,6 +19,13 @@ const STEPS = [
   { label: 'Business',  description: 'Tell us about your business' },
   { label: 'Finance',   description: 'Tell us what finance you need' },
   { label: 'Review',    description: 'Review your application before submitting' },
+]
+
+const ASSET_CONDITIONS = [
+  { value: 'USED', label: 'Used / Pre-owned' },
+  { value: 'NEW', label: 'Brand New' },
+  { value: 'REFURBISHED', label: 'Refurbished' },
+  { value: 'FOR_PARTS', label: 'For Parts / Spares' },
 ]
 
 const FINANCE_TYPES = [
@@ -88,6 +97,14 @@ function StepAsset({ data, onUpdate }: { data: Partial<ApplicationData>; onUpdat
           className="w-full px-4 py-3 text-body font-light border border-[var(--color-border-light)] rounded-[var(--radius-md)] focus:outline-none focus:ring-2 focus:ring-orange-500 resize-y"
         />
       </FormField>
+      <FormField label="Asset condition" htmlFor="asset-condition" required hint="Current condition of the asset.">
+        <Select
+          id="asset-condition"
+          options={ASSET_CONDITIONS}
+          value={data.assetCondition ?? 'USED'}
+          onChange={e => onUpdate({ assetCondition: e.target.value })}
+        />
+      </FormField>
       <FormField label="Asset purchase price (£)" htmlFor="asset-value" required hint="The full price you are paying for the asset, before any deposit.">
         <CurrencyInput
           id="asset-value"
@@ -120,6 +137,16 @@ function StepBusiness({ data, onUpdate }: { data: Partial<ApplicationData>; onUp
           onChange={e => onUpdate({ businessName: e.target.value })}
           placeholder="Your company trading name"
           autoComplete="organization"
+        />
+      </FormField>
+      <FormField label="Contact full name" htmlFor="contact-name" required hint="Your primary contact person for this application.">
+        <Input
+          id="contact-name"
+          type="text"
+          value={data.contactName ?? ''}
+          onChange={e => onUpdate({ contactName: e.target.value })}
+          placeholder="e.g. Alex Morgan"
+          autoComplete="name"
         />
       </FormField>
       <FormField label="Business structure" htmlFor="business-type" required>
@@ -227,9 +254,11 @@ function StepReview({ data }: { data: Partial<ApplicationData> }) {
   const rows: [string, string | undefined][] = [
     ['Asset category', ASSET_CATEGORIES.find(c => c.value === data.assetCategory)?.label],
     ['Asset description', data.assetDescription],
+    ['Asset condition', ASSET_CONDITIONS.find(c => c.value === data.assetCondition)?.label ?? 'Used / Pre-owned'],
     ['Asset value', data.assetValue ? `£${Number(data.assetValue).toLocaleString('en-GB')}` : undefined],
     ['Supplier', data.supplierName],
     ['Business name', data.businessName],
+    ['Contact name', data.contactName],
     ['Business type', BUSINESS_TYPES.find(b => b.value === data.businessType)?.label],
     ['Company number', data.companyNumber],
     ['Years trading', data.yearsTrading ? `${data.yearsTrading} years` : undefined],
@@ -245,7 +274,7 @@ function StepReview({ data }: { data: Partial<ApplicationData> }) {
   return (
     <div className="space-y-6">
       <p className="text-body font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-        Please review your application details below. Once submitted, our team will review your application and be in touch.
+        Please review your application details below. Once submitted, your requirement will be matched against eligible commercial asset finance providers.
       </p>
 
       <div className="border border-[var(--color-border-light)] rounded-[var(--radius-md)] overflow-hidden">
@@ -253,7 +282,7 @@ function StepReview({ data }: { data: Partial<ApplicationData> }) {
           <tbody className="divide-y divide-[var(--color-border-light)]">
             {rows.filter(([, v]) => v).map(([label, value]) => (
               <tr key={label} className="hover:bg-[var(--color-surface-off-white)]">
-                <td className="px-4 py-3 text-body-sm text-[var(--color-text-on-light-muted)] w-40 align-top">{label}</td>
+                <td className="px-4 py-3 text-body-sm text-[var(--color-text-on-light-muted)] w-44 align-top">{label}</td>
                 <td className="px-4 py-3 text-body-sm font-light text-[var(--color-text-on-light-2)]">{value}</td>
               </tr>
             ))}
@@ -261,10 +290,19 @@ function StepReview({ data }: { data: Partial<ApplicationData> }) {
         </table>
       </div>
 
-      <div className="p-5 border border-amber-200 bg-amber-50 rounded-[var(--radius-md)]">
-        <p className="text-body-sm font-light text-amber-800 leading-relaxed">
-          <strong className="font-normal">Important:</strong> Submitting this application does not guarantee finance approval. Your application will be reviewed and assessed by specialist finance providers. Finance is subject to status and eligibility. TAFM does not provide financial advice.
+      <div className="p-5 border border-zinc-300 bg-zinc-50 rounded-[var(--radius-md)] space-y-3">
+        <h4 className="text-xs font-semibold text-zinc-900 uppercase font-mono tracking-wider">
+          Marketplace Transparency & Role Disclosure
+        </h4>
+        <p className="text-body-sm font-light text-zinc-700 leading-relaxed">
+          <strong>TAFM (The Asset Finance Marketplace)</strong> operates as an independent commercial marketplace and digital infrastructure platform connecting UK businesses with accredited asset finance providers.
         </p>
+        <ul className="text-xs text-zinc-600 space-y-1 list-disc list-inside">
+          <li><strong>TAFM is NOT a direct lender</strong> and does not lend capital or make credit underwriting decisions.</li>
+          <li>Commercial providers independently assess and underwrite applications according to their specific commercial appetite and risk policies.</li>
+          <li>Initial provider matching or expressions of interest indicate preliminary commercial appetite only and <strong>do not constitute a credit approval, binding loan offer, or commitment to lend</strong>.</li>
+          <li>All finance facilities remain strictly subject to formal underwriter review, asset inspection, KYC/AML compliance, and mutually agreed legal documentation.</li>
+        </ul>
       </div>
     </div>
   )
@@ -275,12 +313,14 @@ function StepReview({ data }: { data: Partial<ApplicationData> }) {
 interface ApplicationData {
   assetCategory: string
   assetDescription: string
+  assetCondition: string
   assetValue: string
   supplierName: string
   businessName: string
   businessType: string
   companyNumber: string
   yearsTrading: string
+  contactName: string
   contactEmail: string
   contactPhone: string
   financeType: string
@@ -294,10 +334,13 @@ interface ApplicationData {
 
 export default function ApplyPage() {
   const [currentStep, setCurrentStep] = useState(0)
-  const [data, setData] = useState<Partial<ApplicationData>>({})
+  const [data, setData] = useState<Partial<ApplicationData>>({
+    assetCondition: 'USED',
+  })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [result, setResult] = useState<{ reference?: string; opportunityId?: string } | null>(null)
 
   const updateData = (partial: Partial<ApplicationData>) => {
     setData((prev) => ({ ...prev, ...partial }))
@@ -321,13 +364,40 @@ export default function ApplyPage() {
     setIsSubmitting(true)
     setError(null)
     try {
-      // TODO: POST to /api/applications when the endpoint is implemented
-      // const res = await fetch('/api/applications', { method: 'POST', body: JSON.stringify(data) })
-      // if (!res.ok) throw new Error('Submission failed')
-      await new Promise((r) => setTimeout(r, 1200)) // Simulated delay
-      setIsSubmitted(true)
+      const formData = new FormData()
+      formData.set('assetCategory', data.assetCategory || 'commercial-equipment')
+      formData.set('assetDescription', data.assetDescription || '')
+      formData.set('assetCondition', data.assetCondition || 'USED')
+      formData.set('purchasePrice', data.assetValue || '0')
+      if (data.supplierName) formData.set('supplierName', data.supplierName)
+      
+      formData.set('businessName', data.businessName || '')
+      formData.set('businessStructure', data.businessType || 'LIMITED_COMPANY')
+      if (data.companyNumber) formData.set('companyNumber', data.companyNumber)
+      if (data.yearsTrading) formData.set('yearsTrading', data.yearsTrading)
+      
+      formData.set('contactName', data.contactName || data.businessName || 'Representative')
+      formData.set('contactEmail', data.contactEmail || '')
+      if (data.contactPhone) formData.set('contactPhone', data.contactPhone)
+
+      if (data.financeType) formData.set('financeStructure', data.financeType)
+      formData.set('requestedAmount', data.financeAmount || data.assetValue || '0')
+      if (data.deposit) formData.set('depositAmount', data.deposit)
+      if (data.termMonths) formData.set('termMonths', data.termMonths)
+      if (data.notes) formData.set('notes', data.notes)
+
+      const res = await submitApplication(null, formData)
+      if (!res.success) {
+        setError(res.error || 'Submission could not be completed. Please review required fields.')
+      } else {
+        setResult({
+          reference: res.reference,
+          opportunityId: res.opportunityId,
+        })
+        setIsSubmitted(true)
+      }
     } catch {
-      setError('Your application could not be submitted. Please try again or contact us directly.')
+      setError('Your application could not be submitted. Please check your connection and try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -343,16 +413,33 @@ export default function ApplyPage() {
               <path d="M2 11L9.5 18.5L26 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1 className="text-heading-xl font-light text-[var(--color-text-on-light-primary)] mb-4">Application received</h1>
+          <span className="inline-block px-3 py-1 bg-green-50 text-green-700 text-xs font-mono font-medium rounded-full mb-3">
+            Reference: {result?.reference || 'TAFM-CONFIRMED'}
+          </span>
+          <h1 className="text-heading-xl font-light text-[var(--color-text-on-light-primary)] mb-4">Requirement Submitted</h1>
           <p className="text-body font-light text-[var(--color-text-on-light-3)] leading-relaxed mb-6">
-            Thank you. Your finance application has been submitted. We will review your application and be in touch.
+            Your asset finance requirement has been logged into the TAFM matching engine and evaluated against active commercial lender criteria.
           </p>
-          <p className="text-body-sm font-light text-[var(--color-text-on-light-muted)] leading-relaxed">
-            Finance is subject to status and eligibility. TAFM does not guarantee any finance outcome.
-          </p>
-          <a href="/" className="inline-block mt-8 text-orange-500 hover:text-orange-600 text-body-sm transition-colors">
-            Return to homepage
-          </a>
+          <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-[var(--radius-md)] text-left mb-6 text-xs text-zinc-600 space-y-2">
+            <p className="font-semibold text-zinc-800">What happens next:</p>
+            <p>1. Matching providers are notified of your anonymous requirement overview.</p>
+            <p>2. Interested providers review specifications and submit preliminary appetite or formal terms.</p>
+            <p>3. You can monitor progress, respond to requests, and upload verification documents in your account workspace.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+            <Link
+              href="/account"
+              className="w-full sm:w-auto px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-[var(--radius-md)] transition-colors text-center"
+            >
+              Go to Borrower Workspace &rarr;
+            </Link>
+            <Link
+              href="/"
+              className="w-full sm:w-auto px-6 py-3 border border-zinc-200 hover:bg-zinc-100 text-zinc-700 text-sm font-medium rounded-[var(--radius-md)] transition-colors text-center"
+            >
+              Return to Homepage
+            </Link>
+          </div>
         </div>
       </div>
     )

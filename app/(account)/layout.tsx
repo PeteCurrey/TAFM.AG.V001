@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { requireAuth } from '@/lib/auth/context'
+import { PilotFeedbackModal } from '@/components/pilot/PilotFeedbackModal'
 
 // ─── Account layout (Phase 5) ─────────────────────────────────────────────────
 //
@@ -32,6 +33,7 @@ export default async function AccountLayout({ children }: { children: React.Reac
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <PilotFeedbackModal userType="BORROWER" />
           <Link
             href="/apply"
             className="text-[#FF6A1A] hover:underline"

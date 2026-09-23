@@ -148,6 +148,7 @@ export async function submitApplication(
           contactPhone:  data.contactPhone ?? null,
           ownerId:       user.id,
           status:        'ACTIVE',
+          dataOrigin:    'REAL_EXTERNAL',
         },
       })
 
@@ -201,6 +202,7 @@ export async function submitApplication(
         purchasePrice:     data.purchasePrice,
         currency:          'GBP',
         status:            'PENDING_REVIEW',
+        dataOrigin:        'REAL_EXTERNAL',
       },
     })
 
@@ -224,6 +226,7 @@ export async function submitApplication(
         currentStep:            'REVIEW',
         completedSteps:         ['ASSET', 'BUSINESS', 'FINANCE'],
         submittedAt:            new Date(),
+        dataOrigin:             'REAL_EXTERNAL',
       },
     })
 
@@ -234,6 +237,7 @@ export async function submitApplication(
         applicationId: application.id,
         assetId:       asset.id,
         status:        'QUALIFYING',
+        dataOrigin:    'REAL_EXTERNAL',
         statusHistory: [{
           from:      'DRAFT',
           to:        'QUALIFYING',

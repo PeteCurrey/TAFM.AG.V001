@@ -12,6 +12,10 @@ const NAV: Array<{ href: string; label: string } | { divider: true; label: strin
   { href: '/admin',                        label: 'Overview' },
   { href: '/admin/leads',                  label: 'Leads' },
   { href: '/admin/opportunities',          label: 'Opportunities' },
+  // Divider: Pilot Validation
+  { divider: true,                         label: 'Pilot Validation' },
+  { href: '/admin/pilot-operations',       label: 'Pilot operations' },
+  { href: '/admin/pilot-feedback',         label: 'Pilot feedback' },
   // Divider: Providers
   { divider: true,                         label: 'Providers' },
   { href: '/admin/providers',              label: 'Provider list' },

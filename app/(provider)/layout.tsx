@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { requireProviderMembership } from '@/lib/auth/context'
+import { PilotFeedbackModal } from '@/components/pilot/PilotFeedbackModal'
 
 // ─── Provider layout (Phase 5) ────────────────────────────────────────────────
 //
@@ -30,6 +31,7 @@ export default async function ProviderLayout({ children }: { children: React.Rea
           </span>
         </div>
         <div className="flex items-center gap-4">
+          <PilotFeedbackModal userType="PROVIDER" />
           <Link
             href="/"
             className="text-[var(--color-text-on-dark-muted)] hover:text-white transition-colors"

@@ -193,11 +193,13 @@ export function verifyDocumentToken(token: string): {
       .update(expectedPayload)
       .digest('hex')
 
-    if (crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-      return { valid: true, documentId, userId }
+    const sigBuf = Buffer.from(signature)
+    const expectedSigBuf = Buffer.from(expectedSignature)
+    if (sigBuf.length !== expectedSigBuf.length || !crypto.timingSafeEqual(sigBuf, expectedSigBuf)) {
+      return { valid: false, error: 'Invalid token signature' }
     }
 
-    return { valid: false, error: 'Invalid token signature' }
+    return { valid: true, documentId, userId }
   } catch {
     return { valid: false, error: 'Malformed token' }
   }

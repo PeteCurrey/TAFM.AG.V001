@@ -121,38 +121,49 @@ export function ProviderResponseActions({ opportunityId, lenderId, currentStatus
 
       {selectedAction && (
         <div className="space-y-4 pt-4 border-t border-[var(--color-border-dark)]">
-          {selectedAction === 'OFFERED' && (
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] font-mono uppercase text-[var(--color-text-on-dark-muted)] mb-1">
-                  Approved Amount (£)
-                </label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="e.g. 50000"
-                  className="w-full bg-[#121212] border border-[var(--color-border-dark)] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6A1A]"
-                />
-              </div>
-              <div>
-                <label className="block text-[11px] font-mono uppercase text-[var(--color-text-on-dark-muted)] mb-1">
-                  Term (Months)
-                </label>
-                <input
-                  type="number"
-                  value={term}
-                  onChange={(e) => setTerm(e.target.value)}
-                  placeholder="36"
-                  className="w-full bg-[#121212] border border-[var(--color-border-dark)] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6A1A]"
-                />
-              </div>
+          {selectedAction === 'INTERESTED' && (
+            <div className="p-3 bg-purple-950/30 border border-purple-800/40 text-[11px] text-purple-200">
+              <strong className="font-semibold text-purple-100">Preliminary Appetite Only:</strong> This records non-binding commercial interest in the opportunity. It does <em>not</em> constitute a credit approval, financial offer, or commitment to lend.
             </div>
+          )}
+
+          {selectedAction === 'OFFERED' && (
+            <>
+              <div className="p-3 bg-emerald-950/30 border border-emerald-800/40 text-[11px] text-emerald-200">
+                <strong className="font-semibold text-emerald-100">Formal Indicative Terms:</strong> Record proposed indicative facility amount and term. All facilities remain subject to final credit underwriting, satisfactory documentation, and KYC/AML verification.
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-mono uppercase text-[var(--color-text-on-dark-muted)] mb-1">
+                    Indicative Facility (£)
+                  </label>
+                  <input
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="e.g. 50000"
+                    className="w-full bg-[#121212] border border-[var(--color-border-dark)] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6A1A]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-mono uppercase text-[var(--color-text-on-dark-muted)] mb-1">
+                    Term (Months)
+                  </label>
+                  <input
+                    type="number"
+                    value={term}
+                    onChange={(e) => setTerm(e.target.value)}
+                    placeholder="36"
+                    className="w-full bg-[#121212] border border-[var(--color-border-dark)] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FF6A1A]"
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           <div>
             <label className="block text-[11px] font-mono uppercase text-[var(--color-text-on-dark-muted)] mb-1">
-              {selectedAction === 'REQUEST_INFORMATION' ? 'Required information details' : 'Underwriter notes / Terms'}
+              {selectedAction === 'REQUEST_INFORMATION' ? 'Required information details' : 'Underwriter notes / Commercial commentary'}
             </label>
             <textarea
               rows={3}

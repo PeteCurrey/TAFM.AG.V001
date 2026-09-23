@@ -18,6 +18,8 @@ export interface ProviderDiagnosticEntry {
   status: string // 'MATCHED' | 'DISQUALIFIED'
   matchStatus?: string // 'MATCHED' | 'REVIEWING' | 'INTERESTED' | 'OFFERED' | 'DECLINED'
   criteriaVersion?: number
+  isExternallyConfirmed?: boolean
+  confirmationSource?: string
   overall: 'ELIGIBLE' | 'NOT_ELIGIBLE' | 'UNKNOWN'
   factors: Array<{ field: string; label: string; status: string; reason: string }>
   blockers: string[]
@@ -191,6 +193,8 @@ export async function getOpportunityMatchingDiagnostics(
         status: 'MATCHED',
         matchStatus: existingMatch?.matchStatus ?? 'MATCHED',
         criteriaVersion: existingMatch?.criteriaVersion?.versionNumber ?? lender.criteriaVersions[0]?.versionNumber ?? 1,
+        isExternallyConfirmed: crit.isExternallyConfirmed,
+        confirmationSource: crit.confirmationSource ?? 'INTERNAL_SEED',
         overall: evalResult.overall,
         factors: evalResult.factors,
         blockers: evalResult.blockers,
@@ -202,6 +206,8 @@ export async function getOpportunityMatchingDiagnostics(
         slug: lender.slug,
         status: 'DISQUALIFIED',
         criteriaVersion: lender.criteriaVersions[0]?.versionNumber ?? 1,
+        isExternallyConfirmed: crit.isExternallyConfirmed,
+        confirmationSource: crit.confirmationSource ?? 'INTERNAL_SEED',
         overall: evalResult.overall,
         factors: evalResult.factors,
         blockers: evalResult.blockers,

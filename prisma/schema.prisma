@@ -354,6 +354,7 @@ model Business {
   yearsTrading Int?
   annualTurnover Decimal?      @db.Decimal(15, 2)
   currency     String          @default("GBP")
+  dataOrigin   String          @default("REAL_EXTERNAL") // SEED | TEST | INTERNAL | REAL_EXTERNAL
   ownerId      String
   verifiedAt   DateTime?
   createdAt    DateTime        @default(now())
@@ -464,6 +465,7 @@ model Asset {
   documents                Json?
   specifications           Json?
   status                   AssetStatus   @default(DRAFT)
+  dataOrigin               String        @default("REAL_EXTERNAL") // SEED | TEST | INTERNAL | REAL_EXTERNAL
   createdAt                DateTime      @default(now())
   updatedAt                DateTime      @updatedAt
   deletedAt                DateTime?
@@ -651,6 +653,7 @@ model FinanceApplication {
   completedSteps         String[]          @default([])
   internalNotes          String?
   assignedToId           String?
+  dataOrigin             String            @default("REAL_EXTERNAL") // SEED | TEST | INTERNAL | REAL_EXTERNAL
   submittedAt            DateTime?
   decidedAt              DateTime?
   createdAt              DateTime          @default(now())
@@ -870,6 +873,7 @@ model Opportunity {
   matchAnalysis       Json?
   dataQualityScore    Decimal?          @db.Decimal(4, 3)
   internalNotes       String?
+  dataOrigin          String            @default("REAL_EXTERNAL") // SEED | TEST | INTERNAL | REAL_EXTERNAL
   qualifyingAt        DateTime?
   matchedAt           DateTime?
   submittedAt         DateTime?
@@ -889,6 +893,7 @@ model Opportunity {
   @@index([businessId])
   @@index([status])
   @@index([assignedToId])
+  @@index([dataOrigin])
   @@map("opportunities")
 }
 
@@ -961,6 +966,12 @@ model ProviderCriteria {
   exclusions             Json?
   notes                  String?
   isActive               Boolean    @default(true)
+  // Phase 7: Criteria Provenance & Confirmation
+  isExternallyConfirmed  Boolean    @default(false)
+  confirmedBy            String?
+  confirmedAt            DateTime?
+  confirmationSource     String?    // WRITTEN_POLICY | CREDIT_APPETITE_SHEET | UNDERWRITER_CALL | INTERNAL_SEED
+  reviewDate             DateTime?
   createdAt              DateTime   @default(now())
   updatedAt              DateTime   @updatedAt
 
@@ -1363,4 +1374,26 @@ model ProviderBillingRecord {
 
   @@index([lenderId])
   @@map("provider_billing_records")
+}
+
+// ─── Phase 7: Pilot Operational Feedback Loop ──────────────────────────────────
+
+model PilotFeedback {
+  id              String   @id @default(cuid())
+  severity        String   // BLOCKER | HIGH | MEDIUM | LOW
+  category        String   // REGISTRATION | ONBOARDING | ASSET_CREATION | FINANCE_REQUIREMENT | MATCHING | PROVIDER_RESPONSE | INFORMATION_REQUEST | DOCUMENTS | TERMINOLOGY | OTHER
+  userType        String   // BORROWER | PROVIDER | ADMIN | BROKER
+  userId          String?
+  opportunityId   String?
+  summary         String
+  details         String
+  status          String   @default("OPEN") // OPEN | IN_PROGRESS | RESOLVED | DEFERRED
+  resolutionNotes String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([severity])
+  @@index([status])
+  @@index([userType])
+  @@map("pilot_feedbacks")
 }
