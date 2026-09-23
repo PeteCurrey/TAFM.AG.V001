@@ -46,13 +46,18 @@ export default function FinanceCalculatorPage() {
     <>
       <Section variant="dark" spacing="2xl" className="pt-32">
         <Container size="narrow">
-          <SectionHeading as="h1" size="display-xl" variant="dark" eyebrow="Finance Calculator" subtitle="An illustrative guide to potential monthly costs. Not a real finance offer or approved rate.">
+          <SectionHeading as="h1" size="display-xl" variant="dark" eyebrow="ILLUSTRATIVE CALCULATION" subtitle="An indicative simulation to explore potential repayment parameters.">
             Indicative
             <br />
             finance calculator.
           </SectionHeading>
-          <div className="mt-6">
-            <StatusBadge variant="calculated" label="Illustrative estimates only — not real offers" />
+          <div className="mt-6 flex items-center gap-3">
+            <span className="px-3 py-1 text-xs font-mono border border-amber-500/50 text-amber-400 bg-amber-500/10 rounded-sm">
+              ILLUSTRATIVE CALCULATION
+            </span>
+            <span className="text-caption text-white/50 font-light">
+              This is not a finance quote, approval or offer.
+            </span>
           </div>
         </Container>
       </Section>
@@ -60,9 +65,12 @@ export default function FinanceCalculatorPage() {
       <Section variant="light" spacing="2xl">
         <Container size="narrow">
           {/* Important disclaimer */}
-          <div className="mb-10 p-5 border border-amber-200 bg-amber-50 rounded-[var(--radius-md)]">
-            <p className="text-body-sm font-light text-amber-800 leading-relaxed">
-              <strong className="font-normal">Important:</strong> This calculator provides illustrative estimates only. It uses a single indicative interest rate ({(ILLUSTRATIVE_RATE * 100).toFixed(1)}% per annum) for demonstration purposes. Real finance terms, rates and monthly payments will vary significantly depending on the lender, asset type, your business profile and prevailing market conditions. This output is not a finance offer, quote, or approval.
+          <div className="mb-10 p-5 border-l-4 border-amber-500 bg-amber-50/70 rounded-r-sm">
+            <span className="text-xs font-mono uppercase tracking-wider text-amber-900 font-semibold block mb-1">
+              ILLUSTRATIVE CALCULATION NOTICE
+            </span>
+            <p className="text-body-sm font-light text-amber-900 leading-relaxed">
+              <strong>This is not a finance quote, approval or offer.</strong> Calculations use a standardized indicative benchmark rate ({(ILLUSTRATIVE_RATE * 100).toFixed(1)}% p.a.) strictly for preliminary modeling. Actual rates, deposit requirements, and covenants are determined independently by participating finance providers following formal credit assessment and underwriting.
             </p>
           </div>
 
@@ -180,15 +188,17 @@ export default function FinanceCalculatorPage() {
                 </div>
               </div>
 
-              <div className="px-6 pb-6">
-                <p className="text-caption text-[var(--color-text-on-light-muted)] leading-relaxed">
-                  {result.disclaimer}
-                </p>
+              <div className="px-6 pb-4">
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm">
+                  <p className="text-caption text-amber-900 leading-relaxed font-light">
+                    <strong>ILLUSTRATIVE CALCULATION:</strong> This is not a finance quote, approval or offer. Monthly cost is calculated using a standard {(ILLUSTRATIVE_RATE * 100).toFixed(1)}% p.a. illustrative model. Formal terms require credit underwriting and asset validation.
+                  </p>
+                </div>
               </div>
 
               <div className="px-6 pb-6">
-                <Button as="a" href="/apply" variant="primary" fullWidth>
-                  Start a real application
+                <Button as="a" href="/apply" variant="primary" fullWidth size="lg">
+                  Start an Application
                 </Button>
               </div>
             </div>

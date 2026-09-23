@@ -11,11 +11,13 @@ import { MobileMenu } from './MobileMenu'
 // ─── Navigation items ─────────────────────────────────────────────────────────
 
 const NAV_ITEMS: Array<{ label: string; href: string }> = [
-  { label: 'Asset Finance', href: '/asset-finance' },
+  { label: 'Assets', href: '/assets' },
+  { label: 'Finance', href: '/finance' },
   { label: 'How It Works', href: '/how-it-works' },
   { label: 'For Suppliers', href: '/for-suppliers' },
   { label: 'For Finance Providers', href: '/for-lenders' },
   { label: 'Insights', href: '/insights' },
+  { label: 'Trust', href: '/trust' },
 ]
 
 // ─── Site header ──────────────────────────────────────────────────────────────

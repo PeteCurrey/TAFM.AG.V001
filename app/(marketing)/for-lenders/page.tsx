@@ -8,45 +8,46 @@ import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm'
 import { generateMetadata } from '@/lib/seo/metadata'
 
 export const metadata: Metadata = generateMetadata({
-  title: 'For Finance Providers',
-  description: 'TAFM for asset finance lenders — access structured, asset-backed applications from UK businesses. Build your presence in the growing asset finance marketplace.',
+  title: 'For Finance Providers — Structured Asset-Backed Demand',
+  description:
+    'TAFM for institutional asset finance lenders — access verified, structured applications with equipment provenance, supplier quotes, and deterministic criteria matching.',
   canonical: '/for-lenders',
 })
 
-const PROPOSITION = [
+const INFORMATION_PROVIDED = [
   {
-    title: 'Structured application data',
-    body: 'Every TAFM application is asset-centric and structured. Submissions include the asset specification, supplier quote, business financial information and stated finance requirement — providing a consistent, underwritable foundation.',
+    title: 'Verified Asset Dossier',
+    desc: 'Exact manufacturer, model number, specifications, working hours, and secondary market observations.',
   },
   {
-    title: 'Asset-backed by design',
-    body: 'TAFM is not a personal finance broker or general lending aggregator. Every deal originates from a real asset acquisition requirement — equipment, vehicles, machinery — with a named supplier and formal quotation.',
+    title: 'Supplier of Record Quotation',
+    desc: 'Formal commercial quotation with serial identifiers, VAT breakdown, and delivery schedule from a UK dealer.',
   },
   {
-    title: 'Qualified deal flow',
-    body: 'Applications are reviewed for completeness before submission to the lender network. Incomplete, incoherent or ineligible submissions do not reach lenders. You receive submissions that are structured for assessment.',
+    title: 'Verified Business Profile',
+    desc: 'Companies House incorporation data, directors, registered office, trading sector, and operational history.',
   },
   {
-    title: 'API integration model',
-    body: 'The target operating model for volume lenders is API integration — structured application data delivered in a format your underwriting systems can consume directly. No re-keying. No PDF submissions.',
+    title: 'Structured Finance Requirement',
+    desc: 'Requested structure (HP, Lease, Refinance), customer deposit contribution, and proposed amortization term.',
   },
   {
-    title: 'Sector and asset class targeting',
-    body: 'Lenders can configure their appetite by asset category, ticket size, business profile and finance structure type. You receive deal flow matched to your stated criteria.',
+    title: 'Supporting Financial Documentation',
+    desc: 'Filed statutory accounts, recent bank statements, and management accounts uploaded via secure HMAC-signed links.',
   },
   {
-    title: 'Transparent marketplace terms',
-    body: 'Lender participation is governed by clear marketplace terms. We do not operate as a broker in the traditional sense. Commercial arrangements are established upfront and transparently.',
+    title: 'Deterministic Matching Rationale',
+    desc: 'Audit trail showing exact versioned criteria matches against your published underwriting parameters.',
   },
 ]
 
-const WHAT_YOU_RECEIVE = [
-  'Structured, asset-backed application submissions',
-  'Asset specification and supplier quote for every deal',
-  'Business financial profile, trading history and sector',
-  'Finance requirement — amount, structure preference, term',
-  'Supporting documentation — accounts, bank statements',
-  'TAFM completeness and data quality assessment',
+const PROVIDER_AUTONOMY = [
+  'Independent credit risk assessment and scorecard execution',
+  'Commercial risk-adjusted rate pricing and fee setting',
+  'Statutory KYC, AML, PEP, and ultimate beneficial owner (UBO) verification',
+  'Sole authority over deal approval, conditional sanction, or decline',
+  'Issuance of formal regulated or exempt commercial finance agreements',
+  'Final decision on security, personal guarantees, and debentures',
 ]
 
 export default function ForLendersPage() {
@@ -56,27 +57,58 @@ export default function ForLendersPage() {
       <Section variant="dark" spacing="2xl" className="pt-32">
         <Container>
           <Breadcrumbs
-            items={[{ label: 'Home', href: '/' }, { label: 'For Finance Providers', current: true }]}
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'For Finance Providers', current: true },
+            ]}
             variant="dark"
             className="mb-12"
           />
           <AnimateOnScroll>
+            <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 border border-white/10 bg-white/5 rounded-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" aria-hidden="true" />
+              <span className="text-caption font-mono uppercase tracking-wider text-white/70">
+                Institutional Lending Channel
+              </span>
+            </div>
             <SectionHeading
               as="h1"
               size="display-xl"
               variant="dark"
-              eyebrow="For finance providers"
-              subtitle="Structured, asset-backed deal flow from UK businesses acquiring capital equipment."
+              eyebrow="For Finance Providers"
+              subtitle="Access qualified, asset-backed commercial requirements matched to your verified underwriting criteria."
             >
-              Access qualified
+              Structured asset-finance
               <br />
-              asset-finance demand.
+              demand.
             </SectionHeading>
           </AnimateOnScroll>
         </Container>
       </Section>
 
-      {/* Proposition */}
+      {/* Institutional Clarity Banner: Provider Retains Full Underwriting Autonomy */}
+      <Section variant="light" spacing="none" className="pt-16 pb-12 border-b border-[var(--color-border-light)]">
+        <Container>
+          <div className="p-8 border-l-4 border-orange-500 bg-[var(--color-surface-off-white)] rounded-r-sm">
+            <h2 className="text-heading-md font-light text-[var(--color-text-on-light-primary)] mb-3">
+              Independent Credit Authority & Provider Control
+            </h2>
+            <p className="text-body font-light text-[var(--color-text-on-light-2)] leading-relaxed mb-6">
+              TAFM is an asset finance infrastructure and marketplace platform. TAFM does not make credit decisions, issue binding sanctions, or set financial terms. Participating finance providers retain complete autonomy over:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {PROVIDER_AUTONOMY.map((item, i) => (
+                <div key={i} className="p-3 bg-white border border-[var(--color-border-light)] rounded-sm flex items-start gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 flex-shrink-0" aria-hidden="true" />
+                  <span className="text-body-sm font-light text-[var(--color-text-on-light-primary)]">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* What Every Submission Includes */}
       <Section variant="light" spacing="2xl">
         <Container>
           <AnimateOnScroll className="mb-16">
@@ -84,22 +116,27 @@ export default function ForLendersPage() {
               as="h2"
               size="heading-xl"
               variant="light"
-              eyebrow="The TAFM proposition"
+              eyebrow="Deal File Structure"
             >
-              Built for specialist asset finance providers.
+              What every TAFM submission provides.
             </SectionHeading>
           </AnimateOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-l border-[var(--color-border-light)]">
-            {PROPOSITION.map((item, i) => (
-              <AnimateOnScroll key={i} delay={i * 60}>
-                <div className="p-8 border-b border-r border-[var(--color-border-light)]">
-                  <h3 className="text-heading-md font-light text-[var(--color-text-on-light-primary)] mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-body font-light text-[var(--color-text-on-light-3)] leading-relaxed">
-                    {item.body}
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {INFORMATION_PROVIDED.map((item, i) => (
+              <AnimateOnScroll key={i} delay={i * 40}>
+                <div className="p-6 border border-[var(--color-border-light)] rounded-sm bg-white h-full flex flex-col justify-between">
+                  <div>
+                    <span className="text-caption font-mono text-orange-600 mb-2 block">
+                      ITEM 0{i + 1}
+                    </span>
+                    <h3 className="text-heading-sm font-light text-[var(--color-text-on-light-primary)] mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-body-sm font-light text-[var(--color-text-on-light-3)] leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
                 </div>
               </AnimateOnScroll>
             ))}
@@ -107,72 +144,40 @@ export default function ForLendersPage() {
         </Container>
       </Section>
 
-      {/* What you receive */}
-      <Section variant="dark" spacing="2xl">
+      {/* Onboarding & Criteria Management */}
+      <Section variant="dark-2" spacing="2xl">
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-            <AnimateOnScroll>
-              <SectionHeading
-                as="h2"
-                size="heading-xl"
-                variant="dark"
-                eyebrow="Per application"
-              >
-                What every submission includes.
-              </SectionHeading>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll delay={100}>
-              <ul className="space-y-0" role="list">
-                {WHAT_YOU_RECEIVE.map((item, i) => (
-                  <li key={i} className="flex items-start gap-4 py-5 border-b border-white/10">
-                    <span
-                      className="text-caption text-orange-500/60 tabular-nums w-6 flex-shrink-0 pt-0.5"
-                      aria-hidden="true"
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="text-body font-light text-[var(--color-text-on-dark-2)]">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </AnimateOnScroll>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Lender onboarding */}
-      <Section variant="light" spacing="2xl">
-        <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <AnimateOnScroll>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <AnimateOnScroll className="lg:col-span-5">
               <div>
-                <p className="text-label tracking-widest uppercase text-[var(--color-text-on-light-muted)] mb-6">
-                  Lender network
+                <p className="text-label tracking-widest uppercase text-white/50 mb-4">
+                  Provider Integration
                 </p>
-                <h2 className="text-heading-xl font-light text-[var(--color-text-on-light-primary)] mb-4">
-                  Join the TAFM lender network.
+                <h2 className="text-heading-xl font-light text-white mb-4">
+                  Establish Your Verified Appetite Criteria.
                 </h2>
-                <p className="text-body font-light text-[var(--color-text-on-light-3)] leading-relaxed mb-4">
-                  TAFM is currently building its lender network. We are in conversations with specialist asset finance providers across the UK market.
+                <p className="text-body font-light text-white/70 leading-relaxed mb-6">
+                  TAFM encodes your lending policy into deterministic matching parameters: minimum turnover, trading history, eligible asset categories, and ticket boundaries.
                 </p>
-                <p className="text-body font-light text-[var(--color-text-on-light-3)] leading-relaxed mb-6">
-                  Lender onboarding requires FCA authorisation verification and agreement to TAFM's marketplace participation terms. API integration is the target model for volume lenders.
-                </p>
-                <p className="text-body-sm font-light text-[var(--color-text-on-light-muted)] leading-relaxed">
-                  This is not a broker referral arrangement. We are building structured marketplace infrastructure. If that is relevant to your business, we would like to speak with you.
-                </p>
+                <div className="p-5 border border-white/10 bg-[#0d0d0d] space-y-3 rounded-sm">
+                  <h4 className="text-caption font-mono uppercase text-orange-400">
+                    Criteria Provenance Model
+                  </h4>
+                  <p className="text-caption text-white/60 leading-relaxed">
+                    Provider criteria are versioned and dated. Every match records an auditable snapshot of the criteria rules in effect when the application was evaluated, ensuring full compliance transparency.
+                  </p>
+                </div>
               </div>
             </AnimateOnScroll>
 
-            <AnimateOnScroll delay={100}>
-              <LeadCaptureForm
-                type="lender"
-                heading="Register interest"
-                description="Tell us about your organisation, the asset classes you lend against, and your typical ticket size."
-              />
+            <AnimateOnScroll delay={100} className="lg:col-span-7">
+              <div className="p-8 border border-[var(--color-border-dark)] rounded-sm bg-[#090909]">
+                <LeadCaptureForm
+                  type="lender"
+                  heading="Register Provider Interest"
+                  description="Share your asset finance specialisms and appetite parameters."
+                />
+              </div>
             </AnimateOnScroll>
           </div>
         </Container>

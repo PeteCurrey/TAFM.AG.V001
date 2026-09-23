@@ -6,15 +6,16 @@ import { Divider } from '@/components/ui/Divider'
 
 const FOOTER_LINKS = {
   platform: [
-    { label: 'Asset Finance', href: '/asset-finance' },
     { label: 'Asset Categories', href: '/assets' },
     { label: 'Finance Structures', href: '/finance' },
     { label: 'Finance Calculator', href: '/finance-calculator' },
     { label: 'How It Works', href: '/how-it-works' },
+    { label: 'Trust & Transparency', href: '/trust' },
   ],
   partners: [
     { label: 'For Suppliers', href: '/for-suppliers' },
     { label: 'For Finance Providers', href: '/for-lenders' },
+    { label: 'Provider Directory', href: '/providers' },
   ],
   company: [
     { label: 'About TAFM', href: '/about' },

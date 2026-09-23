@@ -29,6 +29,11 @@ async function getVerifiedProviders() {
       verificationStatus: true,
       website: true,
       logoUrl: true,
+      criteria: {
+        select: {
+          isExternallyConfirmed: true,
+        },
+      },
     },
     orderBy: [{ verificationStatus: 'asc' }, { name: 'asc' }],
   })
@@ -105,6 +110,11 @@ export default async function ProvidersPage() {
                           Verified
                         </span>
                       )}
+                      <span className="text-[11px] px-2 py-0.5 border border-white/10 text-text-tertiary">
+                        {provider.criteria?.isExternallyConfirmed
+                          ? 'Criteria: Confirmed'
+                          : 'Criteria: Internal baseline — confirmation pending'}
+                      </span>
                     </div>
                     <p className="text-text-tertiary text-xs mb-3 uppercase tracking-wider">
                       {provider.lenderType.replace(/_/g, ' ')}

@@ -210,6 +210,25 @@ export default async function ProviderProfilePage({ params }: Props) {
                   <dd className="text-text-secondary font-mono text-xs">{provider.fcaReference}</dd>
                 </div>
               )}
+              <div className="flex justify-between gap-2 pt-2 border-t border-border">
+                <dt className="text-text-tertiary">Criteria status</dt>
+                <dd className="text-text-secondary text-right text-xs">
+                  {provider.criteria?.isExternallyConfirmed
+                    ? 'Externally Confirmed'
+                    : 'Internal baseline — external confirmation pending'}
+                </dd>
+              </div>
+              {provider.criteria?.updatedAt && (
+                <div className="flex justify-between gap-2">
+                  <dt className="text-text-tertiary">Last updated</dt>
+                  <dd className="text-text-secondary text-right text-xs font-mono">
+                    {new Date(provider.criteria.updatedAt).toLocaleDateString('en-GB', {
+                      year: 'numeric',
+                      month: 'short',
+                    })}
+                  </dd>
+                </div>
+              )}
             </dl>
           </div>
 

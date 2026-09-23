@@ -8,19 +8,13 @@ const SITE_URL = getSiteUrl()
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
-  // Static routes — core marketing pages
+  // Static routes — core marketing and intelligence pages with verified content
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: SITE_URL,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 1.0,
-    },
-    {
-      url: `${SITE_URL}/asset-finance`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.9,
     },
     {
       url: `${SITE_URL}/assets`,
@@ -30,6 +24,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${SITE_URL}/finance`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/finance/hire-purchase`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/finance/finance-lease`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/finance/operating-lease`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/finance/asset-refinance`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
@@ -59,10 +77,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/insights`,
+      url: `${SITE_URL}/providers`,
       lastModified: now,
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
       priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/trust`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
     },
     {
       url: `${SITE_URL}/about`,
@@ -76,7 +100,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.5,
     },
-    // Asset category pages
+    // Asset category pages (all 10 verified categories)
     {
       url: `${SITE_URL}/assets/construction-equipment`,
       lastModified: now,
@@ -105,7 +129,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}/assets/heavy-vehicles`,
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.6,
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/assets/industrial-equipment`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${SITE_URL}/assets/medical-equipment`,
@@ -119,7 +149,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
-    // Legal — low priority but must be indexed
+    {
+      url: `${SITE_URL}/assets/renewable-energy-equipment`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${SITE_URL}/assets/specialist-equipment`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    // Legal
     {
       url: `${SITE_URL}/legal/privacy`,
       lastModified: now,
@@ -145,11 +187,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
   ]
-
-  // TODO: Append dynamic routes when database is populated:
-  // const articles = await getPublishedInsights()
-  // const articleRoutes = articles.map(a => ({ url: `${SITE_URL}/insights/${a.slug}`, ... }))
-  // const categoryRoutes = await getAssetCategoryRoutes()
 
   return staticRoutes
 }

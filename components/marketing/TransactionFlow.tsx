@@ -13,51 +13,51 @@ import { cn } from '@/lib/utils'
 
 const FLOW_NODES = [
   {
-    id:      'business',
-    label:   'Business',
-    sub:     'Asset requirement identified',
+    id:      'real-asset',
+    label:   'Real Asset',
+    sub:     'Equipment identified at source',
     accent:  false,
   },
   {
-    id:      'asset',
-    label:   'Asset',
-    sub:     'Equipment specified & quoted',
+    id:      'asset-data',
+    label:   'Asset Data',
+    sub:     'Specifications & provenance',
     accent:  false,
   },
   {
-    id:      'supplier',
-    label:   'Supplier',
-    sub:     'Formal supplier quote issued',
+    id:      'requirement',
+    label:   'Finance Requirement',
+    sub:     'Deposit, term & structure',
     accent:  false,
   },
   {
     id:      'tafm',
     label:   'TAFM',
-    sub:     'Application structured & submitted',
+    sub:     'Requirement structured & validated',
     accent:  true,   // orange highlight node
   },
   {
-    id:      'lender',
-    label:   'Lender Network',
-    sub:     'Finance assessment & offers',
+    id:      'eligible-providers',
+    label:   'Eligible Providers',
+    sub:     'Matched to verified criteria',
+    accent:  false,
+  },
+  {
+    id:      'provider-underwriting',
+    label:   'Provider Underwriting',
+    sub:     'Independent credit assessment',
     accent:  false,
   },
   {
     id:      'finance',
     label:   'Finance',
-    sub:     'Offer accepted & agreed',
+    sub:     'Terms agreed & documents signed',
     accent:  false,
   },
   {
     id:      'transaction',
     label:   'Transaction',
     sub:     'Funds drawn down, supplier paid',
-    accent:  false,
-  },
-  {
-    id:      'lifecycle',
-    label:   'Asset Lifecycle',
-    sub:     'Asset in use, finance managed',
     accent:  false,
   },
 ]
