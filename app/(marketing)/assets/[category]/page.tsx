@@ -236,6 +236,26 @@ const CATEGORY_DATA: Record<string, CategoryDetail> = {
     verifiedManufacturers: ['Ruthmann', 'Palfinger', 'Scania'],
     relatedSlugs: ['construction-equipment', 'heavy-vehicles', 'manufacturing-equipment'],
   },
+  'hospitality-equipment': {
+    name: 'Hospitality Equipment',
+    description:
+      'Commercial kitchen, refrigeration, HVAC, and food & beverage processing systems for hospitality and catering operations.',
+    equipmentTypes: [
+      'Commercial Combi Ovens & Cooking Ranges',
+      'Industrial Refrigeration & Walk-in Cold Rooms',
+      'Commercial Dishwashers & Glasswashers',
+      'HVAC & Extraction Ventilation Systems',
+      'Food Processing & Packaging Machinery',
+    ],
+    commonStructures: [
+      { name: 'Hire Purchase', slug: 'hire-purchase', note: 'Spread capital investment across equipment lifetime' },
+      { name: 'Finance Lease', slug: 'finance-lease', note: 'Monthly rental deductibility against operating revenues' },
+    ],
+    financeNote:
+      'Hospitality equipment is typically funded via Hire Purchase or Finance Lease over 24 to 60 months with minimal capital deposit.',
+    verifiedManufacturers: [],
+    relatedSlugs: ['industrial-equipment', 'manufacturing-equipment'],
+  },
 }
 
 // ─── Dynamic metadata ─────────────────────────────────────────────────────────
@@ -249,10 +269,14 @@ export async function generateMetadata({
   const data = CATEGORY_DATA[category]
   if (!data) return {}
 
+  const isSpecialist = category === 'specialist-equipment'
+
   return genMeta({
     title: `${data.name} Finance`,
     description: `${data.description} Structured finance options including Hire Purchase, Finance Lease, and Refinance on TAFM.`,
     canonical: `/assets/${category}`,
+    // Section 3: Thin/placeholder categories with unpopulated inventory must be noindex
+    robots: isSpecialist ? 'index, follow' : 'noindex, follow',
   })
 }
 

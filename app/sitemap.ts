@@ -149,76 +149,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'yearly',
       priority: 0.5,
     },
-    // Verified Flagship Asset Detail Page
+    // Verified Flagship Asset Detail Page & Populated Category (Section 3: Thin/placeholder categories excluded from XML sitemap)
     {
-      url: `${SITE_URL}/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022`,
+      url: `${SITE_URL}/assets/specialist-equipment`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
-    // Asset Category Taxonomy Pages
     {
-      url: `${SITE_URL}/assets/construction-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/manufacturing-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/agricultural-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/commercial-vehicles`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/heavy-vehicles`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/industrial-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/assets/medical-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/assets/technology-it-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/assets/renewable-energy-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/assets/hospitality-equipment`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/assets/specialist-equipment`,
+      url: `${SITE_URL}/assets/specialist-equipment/ruthmann-steiger-t-650-hf-scania-2022`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,

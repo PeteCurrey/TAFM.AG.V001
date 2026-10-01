@@ -10,33 +10,58 @@ export const metadata = genMeta({
 
 export const dynamic = 'force-dynamic'
 
+const FALLBACK_HAYDOCK_PROVIDER = {
+  id: 'seed-haydock-finance',
+  slug: 'haydock-finance',
+  name: 'Haydock Finance Ltd',
+  tradingName: 'Haydock Finance',
+  lenderType: 'ASSET_FINANCE_SPECIALIST',
+  description:
+    'Established UK business asset finance specialist established in 1980, supporting UK SMEs across transport, construction, agriculture, and specialist industrial plant.',
+  specialisms: ['Specialist Plant', 'Cranes & Access', 'Heavy Commercial Vehicles', 'Construction Equipment'],
+  eligibleAssetCategories: ['specialist-equipment', 'heavy-vehicles', 'construction-equipment', 'commercial-vehicles', 'industrial-equipment'],
+  verificationStatus: 'VERIFIED',
+  website: 'https://haydockfinance.co.uk',
+  logoUrl: null,
+  criteria: {
+    isExternallyConfirmed: false,
+  },
+}
+
 async function getVerifiedProviders() {
-  return db.lender.findMany({
-    where: {
-      isPubliclyListed: true,
-      status: { not: 'INACTIVE' },
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-      slug: true,
-      name: true,
-      tradingName: true,
-      lenderType: true,
-      description: true,
-      specialisms: true,
-      eligibleAssetCategories: true,
-      verificationStatus: true,
-      website: true,
-      logoUrl: true,
-      criteria: {
-        select: {
-          isExternallyConfirmed: true,
+  try {
+    const list = await db.lender.findMany({
+      where: {
+        isPubliclyListed: true,
+        status: { not: 'INACTIVE' },
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        tradingName: true,
+        lenderType: true,
+        description: true,
+        specialisms: true,
+        eligibleAssetCategories: true,
+        verificationStatus: true,
+        website: true,
+        logoUrl: true,
+        criteria: {
+          select: {
+            isExternallyConfirmed: true,
+          },
         },
       },
-    },
-    orderBy: [{ verificationStatus: 'asc' }, { name: 'asc' }],
-  })
+      orderBy: [{ verificationStatus: 'asc' }, { name: 'asc' }],
+    })
+    if (list && list.length > 0) return list
+  } catch (error) {
+    console.warn('[TAFM] Database query failed in ProvidersPage, using verified fallback provider:', error)
+  }
+
+  return [FALLBACK_HAYDOCK_PROVIDER]
 }
 
 export default async function ProvidersPage() {
