@@ -126,7 +126,7 @@ export function SiteHeader() {
 
             {/* Desktop navigation */}
             <nav
-              className="hidden xl:flex items-center gap-6"
+              className="hidden xl:flex items-center gap-4 2xl:gap-5"
               aria-label="Main navigation"
             >
               {NAV_ITEMS.map((item) => {
@@ -137,10 +137,10 @@ export function SiteHeader() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'text-caption font-light tracking-[0.05em] uppercase transition-colors duration-[var(--duration-fast)]',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded-sm',
+                      'text-[11px] font-medium tracking-[0.08em] uppercase transition-colors duration-[var(--duration-fast)] whitespace-nowrap px-1 py-1',
+                      'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-orange-500 rounded-sm',
                       isActive
-                        ? 'text-orange-400 font-normal'
+                        ? 'text-orange-400 font-medium'
                         : 'text-neutral-300 hover:text-white',
                     )}
                     aria-current={isActive ? 'page' : undefined}
@@ -151,19 +151,21 @@ export function SiteHeader() {
               })}
 
               {/* Explore Popover Trigger */}
-              <div className="relative" ref={exploreRef}>
+              <div className="relative ml-1" ref={exploreRef}>
                 <button
                   type="button"
                   onClick={() => setIsExploreOpen(!isExploreOpen)}
                   className={cn(
-                    'text-caption font-light tracking-[0.05em] uppercase transition-colors duration-[var(--duration-fast)] flex items-center gap-1.5 py-1 px-2.5 rounded border border-white/10 hover:border-orange-500/50',
-                    isExploreOpen ? 'text-orange-400 border-orange-500' : 'text-neutral-300 hover:text-white'
+                    'text-[10px] font-medium tracking-[0.08em] uppercase transition-colors duration-[var(--duration-fast)] flex items-center gap-1.5 py-1 px-2 rounded-sm border whitespace-nowrap',
+                    isExploreOpen
+                      ? 'text-orange-400 border-orange-500 bg-orange-500/10'
+                      : 'text-neutral-300 border-white/10 hover:border-white/20 hover:text-white bg-white/[0.02]'
                   )}
                   aria-expanded={isExploreOpen}
                   aria-haspopup="true"
                 >
                   <span>Explore</span>
-                  <span className={cn('text-[9px] transition-transform duration-200', isExploreOpen && 'rotate-180')}>
+                  <span className={cn('text-[8px] transition-transform duration-200', isExploreOpen && 'rotate-180')}>
                     ▼
                   </span>
                 </button>

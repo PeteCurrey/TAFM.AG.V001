@@ -69,7 +69,7 @@ export function MobileMenu({ isOpen, onClose, navItems, exploreItems = [], curre
                 tabIndex={isOpen ? 0 : -1}
                 style={{ transitionDelay: isOpen ? `${index * 30}ms` : '0ms' }}
                 className={cn(
-                  'block py-3 text-heading-md font-light tracking-tight border-b border-white/5',
+                  'block py-2.5 text-body-sm font-medium tracking-[0.06em] uppercase border-b border-white/5',
                   'transition-all duration-[var(--duration-normal)]',
                   'focus-visible:outline-none focus-visible:text-orange-400',
                   isActive ? 'text-orange-400' : 'text-neutral-300 hover:text-white',
